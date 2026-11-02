@@ -1,0 +1,25 @@
+version: "0.1"
+updated: ""
+entries: []
+# - id: hours
+#   questions:
+#     - 今天有開嗎
+#   answer: ""
+#   language: zh-Hant
+#   sensitivity: low
+#   source: editor
+#   updated: 2026-11-02
+#   expires: ""
+inbox: []
+# - id: q-20261102-001
+#   received: 2026-11-02T18:02:00+08:00
+#   platform: threads
+#   on_post_id: ""
+#   comment_id: ""
+#   from_username: ""
+#   text: ""
+#   triage: ""
+#   faq_id: ""
+#   draft: ""
+#   action_taken: ""
+#   new_faq: false

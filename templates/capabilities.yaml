@@ -1,0 +1,9 @@
+# Bot fills this in Phase 0. true or false, not maybe.
+persistent_files: false
+persistent_memory: false
+http: false
+browser: false
+schedule: false
+secret_store: false
+human_channel: true
+notes: ""

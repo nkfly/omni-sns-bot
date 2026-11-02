@@ -1,0 +1,154 @@
+version: "0.1"
+timezone: Asia/Taipei
+items:
+  - id: 2026-10-28-second-shelf
+    status: published
+    platform: threads
+    kind: text
+    publish_at: "2026-10-28T19:30:00+08:00"
+    topic: 書在哪一層
+    risk: low
+    language: zh-Hant
+    practice: false
+    facts_used:
+      - style.gold_posts
+    text: |
+      《人間失格》英文版在會閃的那盞燈下面，第二層。《斜陽》在窗邊，但下午兩點以後不要拿去窗邊，會晒。
+    link_attachment: ""
+    topic_tag: ""
+    reply_control: everyone
+    disclose_ai: false
+    alt_text: ""
+    media: []
+    approval:
+      required: true
+      state: approved
+      by: editor
+      at: "2026-10-28T19:10:00+08:00"
+      note: 編輯原文，助理沒有改字。
+    published:
+      creation_id: ""
+      media_id: fictional-media-1
+      permalink: https://example.com/salty-pages/post/second-shelf
+      at: "2026-10-28T19:31:00+08:00"
+    error: ""
+  - id: 2026-11-04-kraft-box
+    status: approved
+    platform: threads
+    kind: text
+    publish_at: "2026-11-04T19:30:00+08:00"
+    topic: 補貨
+    risk: low
+    language: zh-Hant
+    practice: false
+    facts_used:
+      - faq.candy
+    text: |
+      海鹽牛奶糖今天沒做。週四才補，盒子還是那個牛皮紙。
+    link_attachment: ""
+    topic_tag: ""
+    reply_control: everyone
+    disclose_ai: true
+    alt_text: ""
+    media: []
+    approval:
+      required: true
+      state: approved
+      by: editor
+      at: "2026-11-02T20:01:00+08:00"
+      note: 編輯確認週四會補。到點才能發。
+    published:
+      creation_id: ""
+      media_id: ""
+      permalink: ""
+      at: ""
+    error: ""
+  - id: 2026-11-06-pencil
+    status: pending_approval
+    platform: threads
+    kind: text
+    publish_at: "2026-11-06T19:30:00+08:00"
+    topic: 二手書
+    risk: low
+    language: zh-Hant
+    practice: false
+    facts_used: []
+    text: |
+      今天進門先聞到紙。新到的一批二手詩集還有上一個人的鉛筆線，我留著，沒有擦。
+    link_attachment: ""
+    topic_tag: ""
+    reply_control: everyone
+    disclose_ai: true
+    alt_text: ""
+    media: []
+    approval:
+      required: true
+      state: pending
+      by: ""
+      at: ""
+      note: 自檢過了。鉛筆線是編輯今天講的，還等他點頭。
+    published:
+      creation_id: ""
+      media_id: ""
+      permalink: ""
+      at: ""
+    error: ""
+  - id: 2026-11-03-rejected-slogan
+    status: rejected
+    platform: threads
+    kind: text
+    publish_at: ""
+    topic: 推書
+    risk: medium
+    language: zh-Hant
+    practice: true
+    facts_used: []
+    text: |
+      在這個快節奏的時代，閱讀是一種對心靈的投資。今天為大家精選三本不容錯過的好書，讓我們一起開啟閱讀之旅吧！
+    link_attachment: ""
+    topic_tag: ""
+    reply_control: everyone
+    disclose_ai: true
+    alt_text: ""
+    media: []
+    approval:
+      required: true
+      state: rejected
+      by: editor
+      at: "2026-11-02T16:12:00+08:00"
+      note: 沒有任何一句像櫃檯。禁止句全中。不要改寫後重送同一個骨架。
+    published:
+      creation_id: ""
+      media_id: ""
+      permalink: ""
+      at: ""
+    error: ""
+  - id: 2026-11-11-reading-night
+    status: needs_facts
+    platform: threads
+    kind: text
+    publish_at: ""
+    topic: 夜間活動
+    risk: medium
+    language: zh-Hant
+    practice: false
+    facts_used: []
+    text: ""
+    link_attachment: ""
+    topic_tag: ""
+    reply_control: everyone
+    disclose_ai: true
+    alt_text: ""
+    media: []
+    approval:
+      required: true
+      state: pending
+      by: ""
+      at: ""
+      note: 想寫一場週五夜讀。缺：日期、要不要報名、人數。沒有這些就保持 needs_facts。
+    published:
+      creation_id: ""
+      media_id: ""
+      permalink: ""
+      at: ""
+    error: ""

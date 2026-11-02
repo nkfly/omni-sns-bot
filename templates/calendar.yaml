@@ -1,0 +1,32 @@
+version: "0.1"
+timezone: ""
+items: []
+# - id: 2026-11-04-example
+#   status: idea
+#   platform: threads
+#   kind: text
+#   publish_at: ""
+#   topic: ""
+#   risk: low
+#   language: ""
+#   practice: false
+#   facts_used: []
+#   text: ""
+#   link_attachment: ""
+#   topic_tag: ""
+#   reply_control: everyone
+#   disclose_ai: false
+#   alt_text: ""
+#   media: []
+#   approval:
+#     required: true
+#     state: pending
+#     by: ""
+#     at: ""
+#     note: ""
+#   published:
+#     creation_id: ""
+#     media_id: ""
+#     permalink: ""
+#     at: ""
+#   error: ""
