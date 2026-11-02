@@ -5,4 +5,5 @@ browser: false
 schedule: false
 secret_store: true
 human_channel: true
-notes: 虛構範例。沒有排程，所以每次開聊天跑一輪 operating loop。沒有真的 token。
+storage: local_files
+notes: 虛構範例。沒有排程，所以每次開聊天跑一輪 operating loop。沒有真的 token。storage 是 local_files，不是 memory card。

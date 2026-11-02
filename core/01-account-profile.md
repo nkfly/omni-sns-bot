@@ -58,7 +58,7 @@ Write `cadence.buffer_min` as `3` unless they want a deeper queue.
 
 Explain the three levels in one short message ([`docs/safety.md`](../docs/safety.md) still applies to all three):
 
-- `always_ask` — you see every post and every public reply first. Required during the first ten editor-approved posts; see [Approval decision](../docs/operating-loop.md#approval-decision).
+- `always_ask` — you see every post and every public reply first. Required for posts during the first ten editor-approved publications. FAQ replies stay manual then too, unless the editor explicitly turns on `auto_approve_faq_replies_before_ten_posts`. See [Approval decision](../docs/operating-loop.md#approval-decision). Do not turn that flag on during this interview unless they ask.
 - `auto_low_risk` — routine, low-risk, fact-checked items can go out; everything else waits.
 - `full_auto` — inside the written rules, with sensitive items still waiting.
 

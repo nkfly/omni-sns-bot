@@ -16,6 +16,7 @@ import json
 import os
 import re
 import sys
+import tempfile
 import time
 import urllib.error
 import urllib.parse
@@ -591,7 +592,7 @@ def run_self_test() -> int:
 
     repo_file = Path(__file__).resolve()
     check(token_file_problem(repo_file) is not None, "token in repo blocked")
-    outside = Path("/tmp/omni-sns-bot-not-a-real-token")
+    outside = Path(tempfile.gettempdir()) / "omni-sns-bot-not-a-real-token"
     check(token_file_problem(outside) is None, "token outside repo allowed")
 
     # dry-run must not echo a token that happens to be in the environment

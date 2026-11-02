@@ -26,6 +26,7 @@ At the end of a session, show the updated card to the editor. At the start of th
 - AI disclosure policy (and whether they have chosen):
 - Login method: draft_only
 - Browser opt-in: no
+- Storage: memory_card
 - Capabilities and limitations:
 
 ## Voice (short)
@@ -61,7 +62,11 @@ If approved text changes, clear approval and ask again. If publication is uncert
 
 ## Recent confirmed publications
 
-- Keep ids, publication times and permalinks sufficient to avoid repeating posts and count this week's cadence. Include the confirmed editor-approved count above.
+Keep the card short enough to paste back next time.
+
+- Pending and unconfirmed items stay in the section above with the full caption. Do not shorten those to an id.
+- Confirmed publications: the 5 most recent may keep a one-line note plus id, permalink, and date. Anything older keeps only id, permalink, and date. Drop the caption.
+- That list is also how you avoid repeating a post and how you count this week's cadence. The editor-approved published count stays in Account.
 
 ## Last session
 

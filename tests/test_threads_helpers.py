@@ -87,13 +87,15 @@ class HelpersTest(unittest.TestCase):
         original_replace = os.replace
 
         def observe(source, destination):
-            self.assertEqual(stat.S_IMODE(Path(source).stat().st_mode), 0o600)
+            if token_store.private_mode_enforced():
+                self.assertEqual(stat.S_IMODE(Path(source).stat().st_mode), 0o600)
             self.assertEqual(self.token_file.read_text(), "old value")
             return original_replace(source, destination)
 
         with patch.object(token_store.os, "replace", side_effect=observe):
             oauth.write_token(self.token_file, TOKEN)
-        self.assertEqual(stat.S_IMODE(self.token_file.stat().st_mode), 0o600)
+        if token_store.private_mode_enforced():
+            self.assertEqual(stat.S_IMODE(self.token_file.stat().st_mode), 0o600)
         self.assertEqual(token_store.read_token(self.token_file), TOKEN)
 
     def test_failed_token_write_preserves_previous_value(self):
@@ -105,6 +107,8 @@ class HelpersTest(unittest.TestCase):
         self.assertEqual(list(self.root.glob(".omni-*")), [])
 
     def test_both_helpers_reject_public_token_file(self):
+        if not token_store.private_mode_enforced():
+            self.skipTest("Windows mode bits cannot represent Unix 600")
         self.token_file.write_text(TOKEN)
         self.token_file.chmod(0o644)
         with patch.dict(os.environ, {"THREADS_ACCESS_TOKEN": ""}):
@@ -239,6 +243,28 @@ class HelpersTest(unittest.TestCase):
             status, body = publisher.request("POST", "https://example.invalid", {}, [TOKEN])
         self.assertEqual(status, 0)
         self.assertNotIn(TOKEN, body)
+
+    def test_non_posix_skips_mode_owner_and_directory_fsync(self):
+        self.token_file.write_text("old value\n")
+        self.token_file.chmod(0o644)
+
+        def refuse_fchmod(*args, **kwargs):
+            raise AssertionError("fchmod is not used when Unix modes are unavailable")
+
+        with patch.object(token_store, "private_mode_enforced", return_value=False), patch.object(token_store, "directory_sync_supported", return_value=False), patch.object(token_store.os, "fchmod", side_effect=refuse_fchmod, create=True):
+            token_store.sync_directory(self.root)
+            oauth.write_token(self.token_file, TOKEN)
+            self.assertEqual(token_store.read_token(self.token_file), TOKEN)
+        with patch.object(token_store, "directory_sync_supported", return_value=False), patch.object(token_store.os, "open", side_effect=AssertionError("directory fsync")) as opened:
+            token_store.sync_directory(self.root)
+            opened.assert_not_called()
+
+    def test_non_posix_still_rejects_a_token_inside_git(self):
+        inside = Path(__file__).resolve()
+        with patch.object(token_store, "private_mode_enforced", return_value=False):
+            with self.assertRaises(ValueError) as caught:
+                token_store.read_token(inside)
+        self.assertIn("git", str(caught.exception))
 
     def test_dry_run_never_reads_token_or_touches_network_or_state(self):
         with patch.object(publisher, "load_token") as load, patch.object(publisher, "request") as http:

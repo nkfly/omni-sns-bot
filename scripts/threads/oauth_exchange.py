@@ -18,6 +18,7 @@ import os
 import secrets
 import http.client
 import sys
+import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -290,9 +291,10 @@ def run_self_test() -> int:
     check("threads_content_publish" in url, "scope")
     inside = Path(__file__).resolve().parent / "threads-token"
     check(token_destination_problem(inside) is not None, "inside repo blocked")
-    check(token_destination_problem(Path("/tmp/omni-sns-token-self-test")) is None, "outside allowed")
+    outside = Path(tempfile.gettempdir()) / "omni-sns-token-self-test"
+    check(token_destination_problem(outside) is None, "outside allowed")
     check(
-        token_destination_problem(Path("/tmp/credentials.yaml")) is not None,
+        token_destination_problem(Path(tempfile.gettempdir()) / "credentials.yaml") is not None,
         "credentials name blocked",
     )
     check(reject_secret_args(["prog", "--code", "abc"]) is not None, "argv code")

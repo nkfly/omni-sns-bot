@@ -84,7 +84,7 @@ If two FAQ entries could match, escalate. Do not pick the more convenient one.
 - No "Great question" / 「好問題」/ 「いい質問ですね」.
 - No new facts, no new links, no apology for the brand's existence.
 - Run [`self-check.md`](self-check.md) with the reply length rules, which are tighter.
-- Apply the [approval decision](../docs/operating-loop.md#approval-decision), including the first-ten-post gate, and resolve `disclose_ai` under the profile policy. For `editor_decides`, ask for this reply's true/false choice; `null` blocks sending.
+- Apply the [approval decision](../docs/operating-loop.md#approval-decision). Posts stay on the first-ten gate. A reply may skip that gate only when `auto_approve_faq_replies_before_ten_posts` is true because the editor explicitly asked, triage is `answer_from_faq`, the FAQ `source` is `editor`, sensitivity and risk are both `low`, and no safety hold applies. `imported` answers and `draft_reply` still wait. Quotas still apply. Resolve `disclose_ai` under the profile policy. For `editor_decides`, ask for this reply's true/false choice; `null` blocks sending.
 - One public reply per comment. If they reply again, triage the new message. Do not hold a long debate. Two rounds, then escalate if it is still going.
 
 Threads send path: [`platforms/threads/api.md`](../platforms/threads/api.md) (`reply_to_id`, then publish). Browser: [`platforms/threads/browser.md`](../platforms/threads/browser.md). Both count toward `max_replies_per_day`.

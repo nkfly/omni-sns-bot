@@ -23,17 +23,17 @@ If they say yes, set `profile.login.browser_opt_in: true` and `login.method: bro
 
 ## Publish
 
-Do this only for a calendar item that already passed the operating-loop gates, including approval.
+Do this only for a calendar item that already passed the operating-loop gates, including approval. Follow [Without the Python helper](../../docs/operating-loop.md#without-the-python-helper). A click you are not sure landed is not a failed post.
 
-1. Set the item to `publishing` before you touch the composer, so a retry does not double-post.
-2. Open the compose control for a new thread.
-3. Paste the caption only (no front matter, no self-check comment).
-4. Attach a link or image only if the calendar says so and the editor can reach the file. Do not upload a random file from the machine.
-5. If the approval was for you to finish the publish, activate the post control once. If anything about the composer text differs from the approved string, stop and show them.
-6. After the post appears on the profile, copy the permalink into `published.permalink`, set `published`, and log it.
-7. If you cannot find a reliable post control, leave the text in the composer, set the item back to `approved`, and ask the editor to press the button. That is a successful browser assist.
+1. If `attempts/<item-id>.json` already exists and is not a confirmed miss plus an editor-authorized retry, stop and reconcile. Do not open the composer for a second copy.
+2. Write that intent file with `phase: intent` and the caption hash before you touch the composer. Then set the calendar item to `publishing`.
+3. Open the compose control for a new thread. Paste the caption only (no front matter, no self-check comment). Attach a link or image only if the calendar says so and the editor can reach the file.
+4. Set the intent `phase` to `result_unknown` before the Post control. Then activate Post once, only if the composer text still matches the approved caption. If it does not, stop.
+5. Reload the logged-in profile and look for that exact caption. If it is there, copy the permalink into `published.permalink`, set `phase` to `published`, and log it.
+6. If you do not see it, or the page did not reload, leave `result_unknown`. Do not press Post again.
+7. If you cannot find a reliable post control, leave the text in the composer, set the item back to `approved`, set the intent `phase` to `not_published` only after you can see the caption is not already live, and ask the editor to press the button. That is a successful assist, not a retry.
 
-Do not run several posts back to back. Finish one, confirm it is visible, then leave the queue alone until the next window.
+A later attempt requires both a profile check that shows the caption is absent and a fresh yes from the editor. Archive the old intent file; do not delete it. Do not run several posts back to back.
 
 ## Replies
 

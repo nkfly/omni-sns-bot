@@ -38,6 +38,8 @@ python3 scripts/check_workspace.py templates --allow-empty
 python3 -m unittest discover -s tests -v
 ```
 
+The same commands run in GitHub Actions on Ubuntu, macOS, and Windows (Python 3.10 and 3.12). See [`.github/workflows/tests.yml`](.github/workflows/tests.yml). On Windows, `python` is the interpreter name.
+
 `check_workspace.py` needs PyYAML (`pip install pyyaml`). The posting scripts do not.
 The regression suite also uses PyYAML for workspace validation. All tests run offline with dummy credentials and temporary files; never use a real account or token to run them.
 

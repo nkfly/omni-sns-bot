@@ -19,7 +19,7 @@ Create the directory before writing personal answers into the chat's only copy.
 ```text
 <account-slug>/
   README.md                 # from templates/workspace-README.md
-  capabilities.yaml
+  capabilities.yaml         # includes storage: local_files | memory_card | external
   profile.yaml
   style-guide.yaml
   style-notes.md            # optional quotes and editor corrections

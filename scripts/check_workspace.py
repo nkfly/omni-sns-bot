@@ -39,6 +39,14 @@ TEXT_REQUIRED = {
     "rejected",
 }
 APPROVAL_LEVELS = {"always_ask", "auto_low_risk", "full_auto"}
+STORAGE_VALUES = {"local_files", "memory_card", "external"}
+REPLY_HOLDS = {
+    "sensitive_triage",
+    "dont_list_borderline",
+    "delete_or_hide",
+    "reply_to_someone_elses_post",
+    "brand_new_idea_same_turn",
+}
 VOICE_SOURCES = {"extract", "preset", "both"}
 LOGIN_METHODS = {"api", "browser", "draft_only"}
 FAQ_SOURCES = {"editor", "imported", "unconfirmed"}
@@ -193,6 +201,40 @@ def check_style(style, report: Report, allow_empty: bool) -> None:
                     report.add(f"gold_posts[{index}].text is empty")
 
 
+def faq_reply_bypasses_first_ten(
+    policy: dict,
+    *,
+    triage: str,
+    source: str,
+    sensitivity: str,
+    risk: str,
+    holds: list | None = None,
+) -> bool:
+    """Mirror the reply exception in docs/operating-loop.md. Posts never use it.
+
+    Quotas, cadence and disclosure are still enforced by the operating loop.
+    `first_ten_posts` is a post gate, so it is not a hold on this exception.
+    """
+    if not isinstance(policy, dict) or policy.get("auto_approve_faq_replies_before_ten_posts") is not True:
+        return False
+    if triage != "answer_from_faq" or source != "editor":
+        return False
+    if sensitivity != "low" or risk != "low":
+        return False
+    blocked = set(holds or [])
+    blocked.discard("first_ten_posts")
+    return not bool(blocked & REPLY_HOLDS)
+
+
+def check_capabilities(data, report: Report) -> None:
+    if not isinstance(data, dict):
+        report.add("capabilities.yaml must be a mapping")
+        return
+    storage = data.get("storage")
+    if storage not in STORAGE_VALUES:
+        report.add("capabilities.storage must be local_files, memory_card, or external")
+
+
 def check_policy(policy, profile, report: Report, allow_empty: bool) -> None:
     report.need(policy, "level", non_empty=True)
     report.need(policy, "reply_to_others", non_empty=False)
@@ -207,6 +249,11 @@ def check_policy(policy, profile, report: Report, allow_empty: bool) -> None:
     holds, ok = dig(policy, "always_ask_even_on_full_auto")
     if ok and isinstance(holds, list) and "sensitive_triage" not in holds:
         report.add("always_ask_even_on_full_auto must include sensitive_triage")
+    flag, ok = dig(policy, "auto_approve_faq_replies_before_ten_posts")
+    if not ok:
+        report.add("missing auto_approve_faq_replies_before_ten_posts")
+    elif type(flag) is not bool:
+        report.add("auto_approve_faq_replies_before_ten_posts must be false unless the editor explicitly enables it")
 
 
 def check_faq(faq, report: Report, allow_empty: bool) -> None:
@@ -333,6 +380,12 @@ def check_tree(root: Path, allow_empty: bool) -> list[str]:
     if "calendar.yaml" in loaded and "profile.yaml" in loaded:
         check_calendar(loaded["calendar.yaml"], loaded["profile.yaml"], report, allow_empty)
         report.walk_secrets(loaded["calendar.yaml"], "calendar")
+    capabilities = root / "capabilities.yaml"
+    if capabilities.is_file():
+        try:
+            check_capabilities(load(capabilities), report)
+        except yaml.YAMLError as exc:
+            report.add(f"capabilities.yaml is not valid YAML: {exc}")
     for extra in sorted(root.glob("*.yaml")):
         if extra.name in required or extra.name == "credentials.example.yaml":
             continue

@@ -12,7 +12,18 @@ browser: false
 schedule: false
 secret_store: false
 human_channel: true
+storage: memory_card
 ```
+
+`storage` is where the workspace lives. The operating loop reads the same filenames either way.
+
+| Value | Meaning |
+| --- | --- |
+| `local_files` | You can read and write the workspace directory. |
+| `memory_card` | There is no directory. Use the memory card. Set this when `persistent_files` is false. |
+| `external` | Some other store will present those same files (a future connector such as Google Drive). You do not call that service. If the files are not already there, stop. |
+
+Set `storage` in Phase 0. Do not leave it implied.
 
 ## What each one means
 
@@ -21,7 +32,7 @@ human_channel: true
 You can write a directory that is still there in a later session.
 
 - **If yes:** use the workspace layout. Re-read the files at the start of each session instead of trusting recollection.
-- **If no:** use `draft_only` and `always_ask` for the current conversation and follow the [memory-card loop](operating-loop.md#memory-card-loop). Do not run OAuth, API or browser publishing, or scheduling. Keep the memory card from `templates/memory-card.md`. At the end of every session, show the editor the updated card and ask them to keep it. On the next session, ask them to paste it back if you cannot see it.
+- **If no:** set `storage: memory_card`. Use `draft_only` and `always_ask` for the current conversation and follow the [memory-card loop](operating-loop.md#memory-card-loop). Do not run OAuth, API or browser publishing, or scheduling. Keep the memory card from `templates/memory-card.md`. At the end of every session, show the editor the updated card and ask them to keep it. On the next session, ask them to paste it back if you cannot see it. Collapse confirmed publications older than the five most recent to id, permalink, and date. Pending captions stay complete.
 
 ### `persistent_memory`
 

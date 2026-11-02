@@ -96,7 +96,7 @@ Give the editor the caption, the suggested local time, and the link attachment i
 
 ## Browser and API
 
-Both are described under `platforms/threads/`. Use a stable attempt journal for each calendar item as described in [Publishing mechanics](../docs/operating-loop.md#publishing-mechanics). Unknown outcomes stay `publishing`; never rerun create until recovery establishes the result. This module's extra rule: the calendar status moves to `publishing` before you fire the request or click the final control, so a crash does not cause a second post. If you are not sure the first attempt went out, look at the profile (API list or the on-screen profile) before retrying.
+Both are described under `platforms/threads/`. Use a stable attempt journal for each calendar item as described in [Publishing mechanics](../docs/operating-loop.md#publishing-mechanics). Unknown outcomes stay `publishing`; never rerun create until recovery establishes the result. This module's extra rule: the calendar status moves to `publishing` before you fire the request or click the final control, so a crash does not cause a second post. Without the Python helper, write the intent file in [Without the Python helper](../docs/operating-loop.md#without-the-python-helper) first, then verify the caption on the profile. Do not retry until that check shows it is absent and the editor authorizes another attempt.
 
 ## Images and video
 

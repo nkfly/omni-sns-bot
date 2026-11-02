@@ -52,7 +52,7 @@ The bot does not need a special plugin. Instructions are written against capabil
 | `auto_low_risk` | Publishes only when the item is on-topic, fact-checked against the workspace, inside cadence, and low risk. Everything else waits. |
 | `full_auto` | Posts and routine replies inside the written rules. Sensitive items, deletions, and replies on other people's posts still wait. The first ten posts require editor approval. |
 
-The canonical [approval decision](docs/operating-loop.md#approval-decision) requires `always_ask` until ten editor-approved posts have actually published, followed by an explicit request to loosen the level. Without persistent files, use the [memory-card loop](docs/operating-loop.md#memory-card-loop): manual drafting in the current conversation with `always_ask`.
+The canonical [approval decision](docs/operating-loop.md#approval-decision) requires `always_ask` for posts until ten editor-approved posts have actually published, followed by an explicit request to loosen the level. Replies follow that gate too, unless the editor explicitly enables auto-approval of editor-sourced FAQ answers. Without persistent files, use the [memory-card loop](docs/operating-loop.md#memory-card-loop): manual drafting in the current conversation with `always_ask`. `capabilities.yaml` records `storage` as `local_files`, `memory_card`, or `external`.
 
 Safety rules (no passwords in the repo, no invented facts, no spam, respect Threads' limits) apply at every level. See [`docs/safety.md`](docs/safety.md).
 
@@ -75,7 +75,7 @@ A personal editor can use a Meta app in development with themselves as a Threads
 | --- | --- |
 | **0.1 (this release)** | Threads, fully specified |
 | Next | Reddit, Instagram, Facebook, as adapters that follow [`docs/adding-a-platform.md`](docs/adding-a-platform.md) |
-| Later | X, and tighter inbox tooling (webhooks) once a platform adapter needs them |
+| Later | X, tighter inbox tooling (webhooks) once a platform adapter needs them, and external storage connectors such as Google Drive. A connector would sync the same workspace files. The operating loop stays as it is. |
 
 Stubs under `platforms/` are intentional. They record the slot and the rule: do not invent an unofficial publisher and call it done.
 
@@ -104,11 +104,11 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md). Bugs in the Threads instructions shoul
 - **登入並主動發文。** 走 Threads 官方 API，或（你明確同意後）用瀏覽器協助。有內容日曆，以及「每次都問／低風險可自動／規則內自動」三級審核。bot 如果不能登入，仍然可以產出草稿讓你自己貼（`draft_only`），這也算完成設定。
 - **FAQ 與留言。** 只用你提供的事實回答。留言會分流：FAQ 答得了、要問你、垃圾訊息略過、敏感內容先暫停。你確認過的新問題才寫回 FAQ。
 
-無法保存檔案時，使用 memory card，在當次對話產生草稿，由你手動發布；不會啟動 API、瀏覽器發文或排程。前十篇已發布貼文必須逐篇經你批准，之後也只有你明確要求才能放寬審核。
+無法保存檔案時，使用 memory card，在當次對話產生草稿，由你手動發布；不會啟動 API、瀏覽器發文或排程。已確認發布、而且比最近 5 則更舊的貼文只留編號、連結和日期。前十篇已發布貼文必須逐篇經你批准。留言在那之前也不自動送出，除非你明確打開「用你確認過的 FAQ 回答」。之後也只有你明確要求才能放寬審核。工作區的 `storage` 可以是本機檔案、memory card，或未來的外部儲存。
 
 ### 路線圖
 
-v0.1 只完整支援 **Threads**。接下來依序補 Reddit、Instagram、Facebook，之後是 X。新平台要照 [`docs/adding-a-platform.md`](docs/adding-a-platform.md) 加接頭，不能在 stub 裡隨便寫一個發文步驟就算完成。
+v0.1 只完整支援 **Threads**。接下來依序補 Reddit、Instagram、Facebook，之後是 X。外部儲存（例如 Google Drive）也在路線圖上：接上後只同步同一套工作區檔案，操作迴圈不用改。新平台要照 [`docs/adding-a-platform.md`](docs/adding-a-platform.md) 加接頭，不能在 stub 裡隨便寫一個發文步驟就算完成。
 
 `examples/salty-pages/` 是虛構的台南書店，用來示範一份填好的工作區長什麼樣子，不要拿去發文。
 

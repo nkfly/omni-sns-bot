@@ -64,6 +64,41 @@ class WorkspaceTest(unittest.TestCase):
         self.profile["approval"]["posts_approved_count"] = 10
         self.assertEqual(self.problems(), [])
 
+    def test_faq_reply_opt_in_is_off_and_boolean(self):
+        policy = checker.load(ROOT / "examples/salty-pages/approval-policy.yaml")
+        self.assertIs(policy["auto_approve_faq_replies_before_ten_posts"], False)
+        policy["auto_approve_faq_replies_before_ten_posts"] = "yes"
+        report = checker.Report()
+        checker.check_policy(policy, self.profile, report, False)
+        self.assertTrue(any("auto_approve_faq_replies_before_ten_posts" in x for x in report.problems))
+
+    def test_faq_reply_opt_in_does_not_cover_posts_or_loose_matches(self):
+        policy = {"auto_approve_faq_replies_before_ten_posts": False}
+        self.assertFalse(checker.faq_reply_bypasses_first_ten(
+            policy, triage="answer_from_faq", source="editor", sensitivity="low", risk="low"))
+        policy["auto_approve_faq_replies_before_ten_posts"] = True
+        allowed = dict(triage="answer_from_faq", source="editor", sensitivity="low", risk="low")
+        self.assertTrue(checker.faq_reply_bypasses_first_ten(policy, **allowed))
+        self.assertTrue(checker.faq_reply_bypasses_first_ten(policy, holds=["first_ten_posts"], **allowed))
+        for bad in (
+            dict(allowed, source="imported"),
+            dict(allowed, triage="draft_reply"),
+            dict(allowed, sensitivity="high"),
+            dict(allowed, risk="medium"),
+        ):
+            with self.subTest(bad=bad):
+                self.assertFalse(checker.faq_reply_bypasses_first_ten(policy, **bad))
+        self.assertFalse(checker.faq_reply_bypasses_first_ten(
+            policy, holds=["sensitive_triage"], **allowed))
+
+    def test_storage_value_is_one_of_three(self):
+        report = checker.Report()
+        checker.check_capabilities({"storage": "google_drive"}, report)
+        self.assertTrue(any("storage" in x for x in report.problems))
+        report = checker.Report()
+        checker.check_capabilities({"storage": "external"}, report)
+        self.assertEqual(report.problems, [])
+
     def test_counter_must_be_a_non_negative_integer(self):
         for count in (None, -1, "10", True):
             self.profile["approval"]["posts_approved_count"] = count
