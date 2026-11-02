@@ -18,7 +18,9 @@ Fill in a capability note (memory or `capabilities.yaml` in the workspace once i
 - a secret store that is not the chat transcript
 - a way to wait for the editor's answer
 
-Pick the publish mode now, but confirm it with the editor in Phase 4:
+If persistent files are unavailable, choose `draft_only` and `always_ask` for this conversation and follow the [memory-card loop](docs/operating-loop.md#memory-card-loop). Do not initiate OAuth or browser publishing in that mode.
+
+Otherwise pick the publish mode now, but confirm it with the editor in Phase 4:
 
 | Mode | When |
 | --- | --- |
@@ -68,7 +70,7 @@ Read [`platforms/threads/README.md`](platforms/threads/README.md).
 - For `browser`, the editor must opt in after you explain the limits in [`platforms/threads/browser.md`](platforms/threads/browser.md). They log in and pass any checkpoint themselves.
 - For `draft_only`, say so in one sentence and skip login.
 
-Read [`core/03-publish.md`](core/03-publish.md) and write `approval-policy.yaml`. The starting recommendation is `always_ask`. Leave it there until the editor has approved ten posts and explicitly asks to loosen it.
+Read [`core/03-publish.md`](core/03-publish.md) and write `approval-policy.yaml`. Start at `always_ask` and apply the canonical [Approval decision](docs/operating-loop.md#approval-decision), including the first-ten-post gate.
 
 ## Phase 5 — FAQ
 

@@ -21,7 +21,7 @@ human_channel: true
 You can write a directory that is still there in a later session.
 
 - **If yes:** use the workspace layout. Re-read the files at the start of each session instead of trusting recollection.
-- **If no:** keep the memory card from `templates/memory-card.md`. At the end of every session, show the editor the updated card and ask them to keep it. On the next session, ask them to paste it back if you cannot see it.
+- **If no:** use `draft_only` and `always_ask` for the current conversation and follow the [memory-card loop](operating-loop.md#memory-card-loop). Do not run OAuth, API or browser publishing, or scheduling. Keep the memory card from `templates/memory-card.md`. At the end of every session, show the editor the updated card and ask them to keep it. On the next session, ask them to paste it back if you cannot see it.
 
 ### `persistent_memory`
 
@@ -68,9 +68,10 @@ You can ask the editor a question and receive an answer before publishing.
 
 Do this after you know the capabilities. Say the choice to the editor before Phase 4 locks it.
 
-1. If `http` and `secret_store` and the editor is willing to create a Meta app, recommend `api`.
-2. Else if `browser` and the editor, after hearing the browser-path limits, sets `browser_opt_in: true`, use `browser`.
-3. Else use `draft_only`.
+1. If persistent files or a human channel are unavailable, use `draft_only`. Without files, follow the memory-card loop; without a human channel, write drafts only.
+2. Else if `http` and `secret_store` and the editor is willing to create a Meta app, recommend `api`.
+3. Else if `browser` and the editor, after hearing the browser-path limits, sets `browser_opt_in: true`, use `browser`.
+4. Else use `draft_only`.
 
 `draft_only` still runs profile, voice, FAQ, calendar, and self-check. It is the fallback, not a failure.
 

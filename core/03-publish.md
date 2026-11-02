@@ -33,7 +33,7 @@ High is never auto-published.
 
 `facts_used` lists FAQ ids or profile fields. If you cannot fill it and the post states a fact, the status is `needs_facts`, not `draft`.
 
-`disclose_ai` follows `profile.ai_disclosure.policy` once the editor has chosen. The adapter turns that boolean into the platform's flag. For Threads that is `is_made_with_ai` on container creation, not on the publish call.
+`disclose_ai` follows `profile.ai_disclosure.policy` once the editor has chosen. For `editor_decides`, start at `null` and ask for an explicit true or false on this item before approval or publication. The adapter turns that boolean into the platform's flag. For Threads that is `is_made_with_ai` on container creation, not on the publish call.
 
 ## Draft file
 
@@ -60,7 +60,7 @@ The string you publish is the caption, nothing else. No front matter, no checkli
 
 Copy [`templates/approval-policy.yaml`](../templates/approval-policy.yaml). `level` must match `profile.approval.level`. If they disagree, stop and ask which one the editor meant. The policy file wins once they answer; update the profile to match.
 
-Behavior of each level is defined in the operating loop. Do not loosen a level because the queue is backing up. Ask.
+Behavior of each level, including the first ten editor-approved posts, is defined in [Approval decision](../docs/operating-loop.md#approval-decision). Do not loosen a level because the queue is backing up. Ask.
 
 Record an approval on the item:
 
@@ -96,7 +96,7 @@ Give the editor the caption, the suggested local time, and the link attachment i
 
 ## Browser and API
 
-Both are described under `platforms/threads/`. This module's extra rule: the calendar status moves to `publishing` before you fire the request or click the final control, so a crash does not cause a second post. If you are not sure the first attempt went out, look at the profile (API list or the on-screen profile) before retrying.
+Both are described under `platforms/threads/`. Use a stable attempt journal for each calendar item as described in [Publishing mechanics](../docs/operating-loop.md#publishing-mechanics). Unknown outcomes stay `publishing`; never rerun create until recovery establishes the result. This module's extra rule: the calendar status moves to `publishing` before you fire the request or click the final control, so a crash does not cause a second post. If you are not sure the first attempt went out, look at the profile (API list or the on-screen profile) before retrying.
 
 ## Images and video
 
@@ -106,4 +106,4 @@ Alt text: if the platform has a field (`alt_text` on Threads) and the post inclu
 
 ## After publish
 
-Log `action: publish`. Increment nothing fictional. If this was an editor approval, you may increment `profile.approval.posts_approved_count` when the item actually publishes. That counter is what keeps a new `full_auto` account on `auto_low_risk` for the first ten posts.
+Log `action: publish`. Increment nothing fictional. If this was an editor-approved post, increment `profile.approval.posts_approved_count` exactly once when the item actually publishes. Replies, practice items and policy-approved posts do not increment it. On recovery, consult the publication log before counting it again. See the canonical [Approval decision](../docs/operating-loop.md#approval-decision).

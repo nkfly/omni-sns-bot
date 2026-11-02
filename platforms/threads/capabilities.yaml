@@ -4,10 +4,10 @@ status: implemented
 summary: "Official Threads API, plus an opt-in browser fallback and draft_only."
 auth:
   - id: official_api
-    requires: [http, secret_store, human_channel]
+    requires: [persistent_files, http, secret_store, human_channel]
     secret_handling: env_or_mode_600_file_outside_git
   - id: browser
-    requires: [browser, human_channel]
+    requires: [persistent_files, browser, human_channel]
     secret_handling: browser_profile_only
     requires_opt_in: true
   - id: draft_only

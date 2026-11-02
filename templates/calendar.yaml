@@ -15,7 +15,7 @@ items: []
 #   link_attachment: ""
 #   topic_tag: ""
 #   reply_control: everyone
-#   disclose_ai: false
+#   disclose_ai: null  # For editor_decides, ask before setting true or false.
 #   alt_text: ""
 #   media: []
 #   approval:

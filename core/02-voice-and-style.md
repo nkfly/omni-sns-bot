@@ -75,7 +75,7 @@ Write their paragraph into `gold_posts` with `source: editor_sample`. Invent not
 ## Agree the guide before real posts
 
 1. Show a short summary in their language (half a screen, not the raw YAML, unless they ask).
-2. Draft two posts on topics they approved. Mark them as practice in the calendar with `status: pending_approval` and a note `practice: true`, or keep them out of the calendar and in `drafts/practice-1.md` if you do not want them scheduled.
+2. Draft two posts on topics they approved. Mark them as practice in the calendar with `status: pending_approval` and a note `practice: true`, or keep them out of the calendar and in `drafts/practice-1.md`. A practice item is never publishable, even if its wording is approved; create a new real item if the editor later wants to use it.
 3. Run [`self-check.md`](self-check.md) on each. Show the draft and the failed lines. Do not show a draft that still has a hard fail; rewrite once first.
 4. Ask "where does this not sound like you?" Apply their answer to the guide, then rewrite. Two rounds is enough. If it is still wrong, the guide is wrong; do not keep generating until something slips through.
 

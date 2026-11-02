@@ -16,12 +16,14 @@ from __future__ import annotations
 import json
 import os
 import secrets
-import stat
+import http.client
 import sys
 import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
+from token_store import atomic_write, read_token
 
 VERSION = "0.1.0"
 DEFAULT_HOST = "https://graph.threads.com"
@@ -107,25 +109,19 @@ def http_json(method: str, url: str, form: dict | None, secrets_list: list[str])
     except urllib.error.HTTPError as exc:
         raw = exc.read().decode("utf-8", errors="replace")
         status = exc.code
-    except urllib.error.URLError as exc:
-        return 0, redact(str(exc.reason), secrets_list)
-    raw = redact(raw, secrets_list)
+    except (OSError, http.client.HTTPException) as exc:
+        return 0, redact(str(exc), secrets_list)
     try:
         parsed = json.loads(raw)
     except json.JSONDecodeError:
-        return status, raw
+        return status, redact(raw, secrets_list)
+    if status != 200:
+        return status, redact(json.dumps(parsed), secrets_list)
     return status, parsed
 
 
 def write_token(path: Path, token: str) -> None:
-    path.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
-    flags = os.O_WRONLY | os.O_CREAT | os.O_TRUNC
-    fd = os.open(path, flags, 0o600)
-    try:
-        os.write(fd, (token + "\n").encode("utf-8"))
-    finally:
-        os.close(fd)
-    os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
+    atomic_write(path, token + "\n")
 
 
 def env(name: str) -> str:
@@ -159,7 +155,7 @@ def _require_destination() -> tuple[Path | None, str | None]:
     raw = env("THREADS_TOKEN_FILE")
     if not raw:
         return None, "set THREADS_TOKEN_FILE to a path outside the git repo"
-    path = Path(raw)
+    path = Path(raw).expanduser().resolve()
     problem = token_destination_problem(path)
     if problem:
         return None, problem
@@ -198,7 +194,7 @@ def cmd_exchange() -> int:
     )
     if status != 200 or not isinstance(body, dict) or "access_token" not in body:
         message = body.get("error_message") if isinstance(body, dict) else body
-        return emit({"ok": False, "error": f"code exchange failed ({status}): {message}"}, 1)
+        return emit({"ok": False, "error": redact(f"code exchange failed ({status}): {message}", [secret, code])}, 1)
     short = str(body["access_token"])
     user_id = body.get("user_id")
     query = urllib.parse.urlencode(
@@ -216,8 +212,11 @@ def cmd_exchange() -> int:
     )
     if status != 200 or not isinstance(long_body, dict) or "access_token" not in long_body:
         message = long_body.get("error_message") if isinstance(long_body, dict) else long_body
-        return emit({"ok": False, "error": f"long-lived exchange failed ({status}): {message}"}, 1)
-    write_token(path, str(long_body["access_token"]))
+        return emit({"ok": False, "error": redact(f"long-lived exchange failed ({status}): {message}", [secret, code, short])}, 1)
+    try:
+        write_token(path, str(long_body["access_token"]))
+    except OSError as exc:
+        return emit({"ok": False, "error": f"cannot save token: {exc}"}, 1)
     return emit(
         {
             "ok": True,
@@ -238,7 +237,10 @@ def cmd_refresh() -> int:
     if not token:
         if not path.is_file():
             return emit({"ok": False, "error": "no THREADS_ACCESS_TOKEN and token file is missing"}, 1)
-        token = path.read_text(encoding="utf-8").strip()
+        try:
+            token = read_token(path)
+        except (OSError, ValueError) as exc:
+            return emit({"ok": False, "error": str(exc)}, 1)
     if not token:
         return emit({"ok": False, "error": "token is empty"}, 1)
     query = urllib.parse.urlencode({"grant_type": "th_refresh_token", "access_token": token})
@@ -253,12 +255,15 @@ def cmd_refresh() -> int:
         return emit(
             {
                 "ok": False,
-                "error": f"refresh failed ({status}): {message}",
+                "error": redact(f"refresh failed ({status}): {message}", [token]),
                 "hint": "Refresh only works when the long-lived token is at least 24 hours old and not expired.",
             },
             1,
         )
-    write_token(path, str(body["access_token"]))
+    try:
+        write_token(path, str(body["access_token"]))
+    except OSError as exc:
+        return emit({"ok": False, "error": f"cannot save token: {exc}"}, 1)
     return emit(
         {
             "ok": True,
@@ -292,6 +297,16 @@ def run_self_test() -> int:
     )
     check(reject_secret_args(["prog", "--code", "abc"]) is not None, "argv code")
     check(reject_secret_args(["prog", "exchange"]) is None, "command ok")
+
+    import io
+    from unittest.mock import patch
+
+    # A refresh may return the input token; parsing must not redact that value.
+    response = io.BytesIO(b'{"access_token":"DUMMY_SAME_TOKEN"}')
+    response.status = 200
+    with patch.object(urllib.request, "urlopen", return_value=response):
+        status, body = http_json("GET", "https://example.invalid", None, ["DUMMY_SAME_TOKEN"])
+    check(status == 200 and body.get("access_token") == "DUMMY_SAME_TOKEN", "refresh preserves token")
 
     # A code ending in the Meta redirect suffix is stripped. Unit-test the slice.
     code = "AQBx-hBsH3#_"

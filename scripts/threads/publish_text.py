@@ -11,6 +11,7 @@ Exit codes: 0 ok, 1 validation or API failure, 2 bad usage.
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
 import re
@@ -20,6 +21,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
+from token_store import atomic_write, read_token, sync_directory
 
 VERSION = "0.1.0"
 DEFAULT_HOST = "https://graph.threads.com"
@@ -155,15 +158,16 @@ def load_token() -> tuple[str, str | None]:
     raw = os.environ.get("THREADS_TOKEN_FILE", "").strip()
     if not raw:
         return "", "set THREADS_ACCESS_TOKEN or THREADS_TOKEN_FILE"
-    path = Path(raw)
+    path = Path(raw).expanduser().resolve()
     problem = token_file_problem(path)
     if problem:
         return "", problem
     if not path.is_file():
         return "", f"token file not found: {path}"
-    token = path.read_text(encoding="utf-8").strip()
-    if not token:
-        return "", "token file is empty"
+    try:
+        token = read_token(path)
+    except (OSError, ValueError) as exc:
+        return "", str(exc)
     return token, None
 
 
@@ -226,8 +230,8 @@ def request(method: str, url: str, form: dict | None, secrets: list[str]) -> tup
     except urllib.error.HTTPError as exc:
         raw = exc.read().decode("utf-8", errors="replace")
         status = exc.code
-    except urllib.error.URLError as exc:
-        return 0, redact(str(exc.reason), secrets)
+    except (OSError, http.client.HTTPException) as exc:
+        return 0, redact(str(exc), secrets)
     raw = redact(raw, secrets)
     try:
         return status, json.loads(raw)
@@ -247,10 +251,10 @@ def error_message(body: dict | str) -> str:
     return str(body)
 
 
-def check_quota(uid: str, token: str) -> dict | str:
+def check_quota(uid: str, token: str, reply: bool = False) -> dict | str:
     query = urllib.parse.urlencode(
         {
-            "fields": "quota_usage,config,reply_quota_usage,reply_config",
+            "fields": "quota_usage,config,reply_quota_usage,reply_config" if reply else "quota_usage,config",
             "access_token": token,
         }
     )
@@ -262,15 +266,58 @@ def check_quota(uid: str, token: str) -> dict | str:
     if not isinstance(data, list) or not data or not isinstance(data[0], dict):
         return "quota check returned no data; not publishing"
     row = data[0]
-    config = row.get("config") or {}
+    required = [("post", "quota_usage", "config")]
+    if reply:
+        required.append(("reply", "reply_quota_usage", "reply_config"))
+    for label, usage_key, config_key in required:
+        config = row.get(config_key)
+        usage = row.get(usage_key)
+        total = config.get("quota_total") if isinstance(config, dict) else None
+        if type(usage) is not int or type(total) is not int or usage < 0 or total <= 0:
+            return f"quota check returned missing or invalid {label} quota; not publishing"
+        if usage >= total:
+            return f"{label} quota full ({usage}/{total})"
+    return {"quota_usage": row["quota_usage"], "quota_total": row["config"]["quota_total"], "raw": row}
+
+
+def save_attempt(path: Path, attempt: dict, initial: bool = False) -> None:
+    """Reserve one attempt per calendar item before any create request."""
+    text = json.dumps(attempt, ensure_ascii=False, indent=2) + "\n"
+    if not initial:
+        atomic_write(path, text)
+        return
+    path.parent.mkdir(parents=True, mode=0o700, exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        handle.write(text)
+        handle.flush()
+        os.fsync(handle.fileno())
+    sync_directory(path.parent)
+
+
+def recover_attempt(path: Path, uid: str, token: str) -> int:
+    """Read status only. Recovery never creates or publishes a container."""
     try:
-        usage = int(row.get("quota_usage", 0))
-        total = int(config.get("quota_total", 250))
-    except (TypeError, ValueError):
-        return "quota check returned a non-numeric quota; not publishing"
-    if usage >= total:
-        return f"post quota full ({usage}/{total})"
-    return {"quota_usage": usage, "quota_total": total, "raw": row}
+        attempt = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(attempt, dict):
+            raise ValueError("invalid state file")
+        if attempt.get("user_id") != uid or attempt.get("host") != graph_host():
+            raise ValueError("state file belongs to a different account or host")
+        creation_id = attempt.get("creation_id")
+        if not isinstance(creation_id, str) or not creation_id:
+            raise ValueError("create result unknown; inspect the account's posts before any new attempt")
+    except (OSError, ValueError) as exc:
+        return emit({"ok": False, "recovery_required": True, "error": str(exc)}, 1)
+    query = urllib.parse.urlencode({"fields": "status,error_message", "access_token": token})
+    status, body = request("GET", f"{graph_host()}/v1.0/{urllib.parse.quote(creation_id, safe='')}?{query}", None, [token])
+    if status != 200 or not isinstance(body, dict):
+        return emit({"ok": False, "recovery_required": True, "creation_id": creation_id,
+                     "error": f"status check failed ({status}): {error_message(body)}"}, 1)
+    state = body.get("status")
+    return emit({"ok": state == "PUBLISHED", "creation_id": creation_id,
+                 "container_status": state, "recovery_required": state != "PUBLISHED",
+                 "note": "Read-only recovery. Reconcile with the calendar and account; do not rerun create."},
+                0 if state == "PUBLISHED" else 1)
 
 
 def poll_until_ready(container_id: str, token: str, sleep) -> tuple[str, str]:
@@ -322,6 +369,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="Text-only shortcut. Not valid together with --reply-to.",
     )
     parser.add_argument("--user-id", default="", help="Defaults to THREADS_USER_ID or me.")
+    parser.add_argument("--state-file", type=Path, help="Private attempt journal for this calendar item; required for real publishing.")
+    parser.add_argument("--recover", action="store_true", help="Read container status from --state-file. Never publishes.")
     parser.add_argument("--dry-run", action="store_true", help="Validate locally. No network, no token.")
     parser.add_argument("--check-limit", action="store_true", help="Print the publishing quota and exit.")
     parser.add_argument("--self-test", action="store_true", help="Run local checks. No network.")
@@ -337,12 +386,23 @@ def main(argv: list[str] | None = None) -> int:
     if args.self_test:
         return run_self_test()
 
+    if args.recover:
+        if not args.state_file or args.dry_run or args.check_limit:
+            return emit({"ok": False, "error": "--recover requires --state-file and cannot combine with --dry-run or --check-limit"}, 2)
+        token, err = load_token()
+        if err:
+            return emit({"ok": False, "error": err}, 1)
+        return recover_attempt(args.state_file.expanduser().absolute(), user_id_from(args), token)
+
+    if args.dry_run and args.check_limit:
+        return emit({"ok": False, "error": "--dry-run cannot combine with --check-limit"}, 2)
+
     if args.check_limit:
         token, err = load_token()
         if err:
             return emit({"ok": False, "error": err}, 1)
         uid = user_id_from(args)
-        quota = check_quota(uid, token)
+        quota = check_quota(uid, token, reply=bool(args.reply_to))
         if isinstance(quota, str):
             return emit({"ok": False, "error": quota}, 1)
         return emit({"ok": True, "quota": quota}, 0)
@@ -379,19 +439,36 @@ def main(argv: list[str] | None = None) -> int:
             0,
         )
 
+    if not args.state_file:
+        return emit({"ok": False, "error": "pass --state-file for this calendar item so interruptions can be recovered"}, 2)
+    state_path = args.state_file.expanduser().absolute()
+    if state_path.exists() or state_path.is_symlink():
+        return emit({"ok": False, "recovery_required": True,
+                     "error": "state file already exists; use --recover, never rerun create"}, 1)
     token, err = load_token()
     if err:
         return emit({"ok": False, "error": err}, 1)
     uid = user_id_from(args)
-    quota = check_quota(uid, token)
+    quota = check_quota(uid, token, reply=bool(args.reply_to))
     if isinstance(quota, str):
         return emit({"ok": False, "error": quota}, 1)
 
+    attempt = {"user_id": uid, "host": graph_host(), "phase": "create_result_unknown"}
+    try:
+        save_attempt(state_path, attempt, initial=True)
+    except OSError as exc:
+        return emit({"ok": False, "error": f"cannot reserve state file: {exc}"}, 1)
     create_url = f"{graph_host()}/v1.0/{urllib.parse.quote(uid)}/threads"
     status, body = request("POST", create_url, form_body(text, args, token), [token])
     if status != 200 or not isinstance(body, dict) or "id" not in body:
-        return emit({"ok": False, "error": f"container failed ({status}): {error_message(body)}"}, 1)
+        return emit({"ok": False, "recovery_required": True, "error": f"container failed ({status}): {error_message(body)}"}, 1)
     creation_id = str(body["id"])
+    attempt.update(creation_id=creation_id, phase="container_created")
+    try:
+        save_attempt(state_path, attempt)
+    except OSError as exc:
+        return emit({"ok": False, "creation_id": creation_id, "recovery_required": True,
+                     "error": f"cannot save container id; record it in the calendar: {exc}"}, 1)
     if args.auto_publish:
         return emit(
             {
@@ -430,6 +507,11 @@ def main(argv: list[str] | None = None) -> int:
             1,
         )
     publish_url = f"{graph_host()}/v1.0/{urllib.parse.quote(uid)}/threads_publish"
+    attempt["phase"] = "publish_result_unknown"
+    try:
+        save_attempt(state_path, attempt)
+    except OSError as exc:
+        return emit({"ok": False, "creation_id": creation_id, "error": f"cannot save publish intent: {exc}"}, 1)
     status, body = request(
         "POST",
         publish_url,
@@ -442,9 +524,16 @@ def main(argv: list[str] | None = None) -> int:
                 "ok": False,
                 "error": f"publish failed ({status}): {error_message(body)}",
                 "creation_id": creation_id,
+                "recovery_required": True,
             },
             1,
         )
+    attempt.update(phase="published", media_id=str(body["id"]))
+    try:
+        save_attempt(state_path, attempt)
+    except OSError as exc:
+        return emit({"ok": True, "creation_id": creation_id, "media_id": str(body["id"]),
+                     "note": f"Published, but state update failed; record ids in the calendar: {exc}"}, 0)
     return emit(
         {
             "ok": True,
@@ -490,6 +579,15 @@ def run_self_test() -> int:
     )
     check(reject_secret_args(["prog", "--token", "abc"]) is not None, "argv token")
     check(reject_secret_args(["prog", "--text", "hi"]) is None, "argv text")
+
+    from unittest.mock import patch
+
+    row = {"quota_usage": 0, "config": {"quota_total": 250},
+           "reply_quota_usage": 1000, "reply_config": {"quota_total": 1000}}
+    with patch.dict(check_quota.__globals__, request=lambda *a: (200, {"data": [row]})):
+        check(isinstance(check_quota("me", "dummy", reply=True), str), "exhausted reply quota blocked")
+    with patch.dict(check_quota.__globals__, request=lambda *a: (200, {"data": [{}]})):
+        check(isinstance(check_quota("me", "dummy"), str), "missing quota blocked")
 
     repo_file = Path(__file__).resolve()
     check(token_file_problem(repo_file) is not None, "token in repo blocked")

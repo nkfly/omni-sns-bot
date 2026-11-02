@@ -164,6 +164,9 @@ def check_profile(profile, report: Report, allow_empty: bool) -> None:
         chosen, ok = dig(profile, "ai_disclosure.chosen")
         if not ok or chosen is not True:
             report.add("ai_disclosure.chosen must be true once the editor has answered; do not publish before that")
+    count, ok = dig(profile, "approval.posts_approved_count")
+    if not ok or type(count) is not int or count < 0:
+        report.add("approval.posts_approved_count must be a non-negative integer; missing or invalid counts require always_ask")
 
 
 def check_style(style, report: Report, allow_empty: bool) -> None:
@@ -272,6 +275,24 @@ def check_calendar(calendar, profile, report: Report, allow_empty: bool) -> None
         approval = item.get("approval") or {}
         if not isinstance(approval, dict) or approval.get("state") not in {"pending", "approved", "rejected"}:
             report.add(f"items[{index}].approval.state is missing")
+        # Current policy gates queued actions, never rewrites historical decisions.
+        if status in {"approved", "publishing"}:
+            if item.get("practice") is True:
+                report.add(f"items[{index}] is practice and must not be approved for publishing")
+            if type(item.get("disclose_ai")) is not bool:
+                report.add(f"items[{index}].disclose_ai needs an explicit boolean before publishing")
+            policy, _ = dig(profile, "ai_disclosure.policy")
+            if policy == "never" and item.get("disclose_ai") is not False:
+                report.add(f"items[{index}].disclose_ai conflicts with never policy")
+            if policy == "always" and item.get("disclose_ai") is not True:
+                report.add(f"items[{index}].disclose_ai conflicts with always policy")
+            if not isinstance(approval, dict) or approval.get("state") != "approved":
+                report.add(f"items[{index}] status {status} requires approval.state approved")
+            count, _ = dig(profile, "approval.posts_approved_count")
+            level, _ = dig(profile, "approval.level")
+            requires_editor = level == "always_ask" or type(count) is not int or count < 10
+            if requires_editor and (not isinstance(approval, dict) or approval.get("by") != "editor"):
+                report.add(f"items[{index}] requires editor approval under the first-ten/always_ask rule")
         if status == "published":
             published = item.get("published") or {}
             if is_blank(published.get("permalink")) and is_blank(published.get("media_id")):

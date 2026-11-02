@@ -28,6 +28,7 @@ Create the directory before writing personal answers into the chat's only copy.
   calendar.yaml
   drafts/                   # one markdown file per item id, when the text is long
   sources/                  # past posts and notes the editor supplied
+  attempts/                 # durable publish/reply attempt journals; never delete to retry
   logs/activity.jsonl
   secrets/README.md         # points at env vars; do not put the token here if the workspace is inside the clone
 ```
@@ -75,7 +76,7 @@ Append one JSON object per line. Never rewrite old lines. Never log tokens, auth
 
 ## Memory card
 
-When you cannot keep files, fill [`templates/memory-card.md`](../templates/memory-card.md) and treat it as the workspace. It holds the same decisions in compressed form. It does not hold tokens. Say that in the card.
+When you cannot keep files, fill [`templates/memory-card.md`](../templates/memory-card.md). Use `draft_only` and `always_ask` for the current conversation and follow the [memory-card loop](operating-loop.md#memory-card-loop). YAML loading and automatic publishing do not apply. It holds the same decisions in compressed form. It does not hold tokens. Say that in the card.
 
 ## Before you commit anything, anywhere
 

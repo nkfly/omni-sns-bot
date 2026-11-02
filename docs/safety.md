@@ -63,7 +63,7 @@ Meta can label AI content, and the create-container call accepts `is_made_with_a
 | Policy | What you do |
 | --- | --- |
 | `always` | Set `is_made_with_ai=true` on containers you drafted. |
-| `editor_decides` | Ask once during setup and store the answer. Default for a new workspace is to ask; until they answer, do not publish. |
+| `editor_decides` | Ask once during setup and store the answer. Default for a new workspace is to ask; until they answer, do not publish. If they choose per-post decisions, each item starts with `disclose_ai: null`; require an explicit true or false from the editor before publishing. Never treat a missing value as false. |
 | `never` | Do not set the flag. You still do not claim a human typed the draft if the editor asks you. You also do not put "as an AI" in the caption unless they want that sentence. |
 
 Omitting the flag does not block Meta from labeling on its own. Do not try to evade a label.

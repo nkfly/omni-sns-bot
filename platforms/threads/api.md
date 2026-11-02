@@ -231,7 +231,7 @@ Hide a top-level reply (ask first; hiding also hides nested replies):
 | `published.media_id` | id from step B |
 | reply inbox `comment_id` | `reply_to_id` |
 
-Move calendar status to `publishing` before step A. On success, `published` and clear `error`. On failure, `failed`, store the redacted message, and do not immediately create another container.
+Move calendar status to `publishing` before step A. Persist create intent, then the container id before step B; use the helper's required `--state-file` when available. On confirmed success, `published` and clear `error`. Unknown results stay `publishing`; confirmed rejections become `failed`. Never immediately create another container. Follow the canonical [recovery procedure](../../docs/operating-loop.md#publishing-mechanics) before any retry.
 
 ## 11. Errors you will actually see
 

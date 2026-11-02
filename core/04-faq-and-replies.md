@@ -58,6 +58,7 @@ When a comment arrives, append to `faq.inbox` (or a monthly split file `faq-inbo
   triage: answer_from_faq
   faq_id: hours
   draft: 今天有開，九點關。週一才休。
+  disclose_ai: null
   action_taken: pending
   new_faq: false
 ```
@@ -83,6 +84,7 @@ If two FAQ entries could match, escalate. Do not pick the more convenient one.
 - No "Great question" / 「好問題」/ 「いい質問ですね」.
 - No new facts, no new links, no apology for the brand's existence.
 - Run [`self-check.md`](self-check.md) with the reply length rules, which are tighter.
+- Apply the [approval decision](../docs/operating-loop.md#approval-decision), including the first-ten-post gate, and resolve `disclose_ai` under the profile policy. For `editor_decides`, ask for this reply's true/false choice; `null` blocks sending.
 - One public reply per comment. If they reply again, triage the new message. Do not hold a long debate. Two rounds, then escalate if it is still going.
 
 Threads send path: [`platforms/threads/api.md`](../platforms/threads/api.md) (`reply_to_id`, then publish). Browser: [`platforms/threads/browser.md`](../platforms/threads/browser.md). Both count toward `max_replies_per_day`.

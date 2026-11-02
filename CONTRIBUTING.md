@@ -35,9 +35,11 @@ python3 scripts/threads/publish_text.py --self-test
 python3 scripts/threads/oauth_exchange.py --self-test
 python3 scripts/check_workspace.py examples/salty-pages
 python3 scripts/check_workspace.py templates --allow-empty
+python3 -m unittest discover -s tests -v
 ```
 
 `check_workspace.py` needs PyYAML (`pip install pyyaml`). The posting scripts do not.
+The regression suite also uses PyYAML for workspace validation. All tests run offline with dummy credentials and temporary files; never use a real account or token to run them.
 
 ## Docs style
 
@@ -49,3 +51,5 @@ python3 scripts/check_workspace.py templates --allow-empty
 ## Pull requests
 
 Say what the editor's bot can do after the change that it could not do before. If you are adding a platform, use the checklist in the adding-a-platform guide and wait until publish, replies, limits, and safety are all real before flipping `status` to `implemented`.
+
+For each behavior change, record why it is needed in the changelog and explain the reason in the commit or PR description: the concrete trigger or failure, its impact, and how the change resolves it. Include relevant validation and its limits. A list of edited files or new features alone is not enough; future maintainers must be able to understand the decision without reading the original chat.

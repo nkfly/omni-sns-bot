@@ -21,5 +21,6 @@ inbox: []
 #   triage: ""
 #   faq_id: ""
 #   draft: ""
+#   disclose_ai: null  # Resolve the editor's per-reply choice before sending.
 #   action_taken: ""
 #   new_faq: false

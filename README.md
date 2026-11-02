@@ -50,7 +50,9 @@ The bot does not need a special plugin. Instructions are written against capabil
 | --- | --- |
 | `always_ask` | Every public post and reply waits for the editor. **Start here.** |
 | `auto_low_risk` | Publishes only when the item is on-topic, fact-checked against the workspace, inside cadence, and low risk. Everything else waits. |
-| `full_auto` | Posts and routine replies inside the written rules. Sensitive items, deletions, and replies on other people's posts still wait. The first ten posts stay on a shorter leash. |
+| `full_auto` | Posts and routine replies inside the written rules. Sensitive items, deletions, and replies on other people's posts still wait. The first ten posts require editor approval. |
+
+The canonical [approval decision](docs/operating-loop.md#approval-decision) requires `always_ask` until ten editor-approved posts have actually published, followed by an explicit request to loosen the level. Without persistent files, use the [memory-card loop](docs/operating-loop.md#memory-card-loop): manual drafting in the current conversation with `always_ask`.
 
 Safety rules (no passwords in the repo, no invented facts, no spam, respect Threads' limits) apply at every level. See [`docs/safety.md`](docs/safety.md).
 
@@ -101,6 +103,8 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md). Bugs in the Threads instructions shoul
 - **聲線。** 從舊貼文學，或由你先描述風格。內建「不要寫得像 AI」的檢查，涵蓋英文、繁體中文、日文，每則草稿公開前都要過自檢。
 - **登入並主動發文。** 走 Threads 官方 API，或（你明確同意後）用瀏覽器協助。有內容日曆，以及「每次都問／低風險可自動／規則內自動」三級審核。bot 如果不能登入，仍然可以產出草稿讓你自己貼（`draft_only`），這也算完成設定。
 - **FAQ 與留言。** 只用你提供的事實回答。留言會分流：FAQ 答得了、要問你、垃圾訊息略過、敏感內容先暫停。你確認過的新問題才寫回 FAQ。
+
+無法保存檔案時，使用 memory card，在當次對話產生草稿，由你手動發布；不會啟動 API、瀏覽器發文或排程。前十篇已發布貼文必須逐篇經你批准，之後也只有你明確要求才能放寬審核。
 
 ### 路線圖
 
