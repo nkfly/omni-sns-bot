@@ -1,0 +1,97 @@
+version: "0.1"
+updated: "2026-11-02"
+evidence:
+  post_count: 10
+  thin_sample: false
+  source: sources/past-posts.md
+language:
+  primary: zh-Hant
+  also:
+    - en
+    - ja
+  mixing: 書名用原文。其餘中文。不要中英夾雜在同一句裡講心情。
+tone:
+  adjectives:
+    - 乾
+    - 具體
+    - 像鄰居
+  not:
+    - 熱絡
+    - 療癒
+    - 銷售
+  formality: 口語，完整句為主，偶爾半句。
+  address_reader_as: 你。不要用大家、親愛的、各位讀者。
+sentence:
+  typical_length: 中文一句大約 8 到 24 個字。一篇通常兩到四句。
+  fragments_ok: true
+  max_exclamation_per_post: 0
+  question_ending_rate: 幾乎沒有。問句只在複述客人的問題時出現。
+emoji:
+  frequency: never
+  allowed: []
+  max_per_post: 0
+hashtags:
+  frequency: never
+  max_per_post: 0
+  allowed: []
+  placement: 不加。
+formatting:
+  line_breaks: 兩件事之間空一行。不要條列。
+  bullets: false
+  default_cta: 沒有。需要時只留一個事實（幾點關、週四補貨）。
+vocabulary:
+  use:
+    - 那排
+    - 窗邊
+    - 公休
+    - 補貨
+    - 櫃檯
+  avoid:
+    - 小確幸
+    - 閱讀之旅
+    - 精選
+    - 不容錯過
+    - 沉浸式
+    - 極致
+signature_phrases:
+  - 週一公休。不是文案，是真的沒有人。
+topics_in_practice:
+  - 燈
+  - 窗邊會晒的書
+  - 海鹽牛奶糖與牛皮紙盒
+  - 寄賣要等
+gold_posts:
+  - text: |
+      《人間失格》英文版在會閃的那盞燈下面，第二層。《斜陽》在窗邊，但下午兩點以後不要拿去窗邊，會晒。
+    source: corpus
+    why: 兩本書、一個位置、一個限制。沒有招呼。
+  - text: |
+      海鹽牛奶糖今天做的，盒子還是牛皮紙。不是文青，是沒有別的盒子。
+    source: corpus
+    why: 先講東西，再拆掉別人可能加的形容。
+  - text: |
+      有人要我們把燈修一修。燈是閃的，閃了兩年。修了就不是這家店。
+    source: corpus
+    why: 短，有態度，沒有號召。
+  - text: |
+      週一公休。不是文案，是真的沒有人。
+    source: corpus
+    why: 簽名句。回答營業問題時可以縮成「週一才休」。
+rejected_patterns:
+  - pattern: 在這個快節奏的時代
+    why: 語料裡沒有任何總論開頭。
+  - pattern: 讓我們一起
+    why: 店員不拉人。
+  - pattern: 好問題
+    why: 回覆直接給事實。
+allowed_exceptions: []
+replies:
+  typical_length: 一句，必要時兩句。不超過 40 個字。
+  answer_in_first_line: true
+  thanks: 只有對方指出具體的事（例如書放錯層）才謝。純稱讚可以不回。
+  banned_openers:
+    - Great question
+    - 好問題
+    - いい質問ですね
+    - 感謝你的留言
+notes: 燈可以偶爾出現，不要每篇都出現。編輯說那是笑話，不是品牌資產。

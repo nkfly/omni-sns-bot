@@ -1,0 +1,56 @@
+version: "0.1"
+updated: ""
+evidence:
+  post_count: 0
+  thin_sample: true
+  source: ""
+language:
+  primary: ""
+  also: []
+  mixing: ""
+tone:
+  adjectives: []
+  not: []
+  formality: ""
+  address_reader_as: ""
+sentence:
+  typical_length: ""
+  fragments_ok: false
+  max_exclamation_per_post: 0
+  question_ending_rate: ""
+emoji:
+  frequency: never
+  allowed: []
+  max_per_post: 0
+hashtags:
+  frequency: never
+  max_per_post: 0
+  allowed: []
+  placement: ""
+formatting:
+  line_breaks: ""
+  bullets: false
+  default_cta: ""
+vocabulary:
+  use: []
+  avoid: []
+signature_phrases: []
+topics_in_practice: []
+gold_posts: []
+# - text: |
+#     verbatim post
+#   source: corpus
+#   why: "short, specific, no greeting"
+rejected_patterns: []
+# - pattern: ""
+#   why: ""
+allowed_exceptions: []
+replies:
+  typical_length: ""
+  answer_in_first_line: true
+  thanks: "only when they did something specific"
+  banned_openers:
+    - Great question
+    - 好問題
+    - いい質問ですね
+notes: ""

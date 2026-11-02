@@ -1,0 +1,28 @@
+version: "0.1"
+# Must match profile.approval.level after setup.
+# always_ask | auto_low_risk | full_auto
+level: always_ask
+reply_to_others: false
+hide_or_delete: ask
+# FAQ replies before ten published posts stay manual until the editor asks.
+# Posts never use this flag. Log the request before setting it true.
+auto_approve_faq_replies_before_ten_posts: false
+low_risk_requires:
+  - on_topic
+  - no_new_link_domain
+  - no_price_or_discount_unless_in_faq
+  - no_health_legal_financial_claim
+  - no_real_person_callout
+  - no_politics_unless_topic_allows
+  - within_cadence_and_quiet_hours
+  - self_check_pass
+  - facts_from_workspace_only
+  - language_matches_item
+always_ask_even_on_full_auto:
+  - sensitive_triage
+  - dont_list_borderline
+  - first_ten_posts
+  - delete_or_hide
+  - reply_to_someone_elses_post
+  - brand_new_idea_same_turn
+notes: "Apply docs/operating-loop.md#approval-decision. First ten posts require editor approval. auto_approve_faq_replies_before_ten_posts stays false until the editor explicitly asks; log that request."

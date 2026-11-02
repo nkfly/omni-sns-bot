@@ -1,0 +1,2 @@
+{"ts":"2026-11-02T11:00:00+08:00","actor":"bot","action":"setup","platform":"none","item_id":"","result":"ok","detail":"workspace created, no secrets stored"}
+{"ts":"2026-11-02T19:40:00+08:00","actor":"bot","action":"draft","platform":"threads","item_id":"2026-11-04-window","result":"ok","detail":"self-check pass, waiting for editor"}

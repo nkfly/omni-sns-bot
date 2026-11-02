@@ -1,0 +1,12 @@
+platform: example
+version: "0.1"
+status: not_implemented
+summary: "Replace this folder. Do not post until status is implemented."
+auth: []
+publish:
+  text: false
+reply:
+  read: false
+  create: false
+limits_doc: limits.md
+checked_against: ""

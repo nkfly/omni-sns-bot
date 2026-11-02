@@ -1,0 +1,27 @@
+# Editor workspaces. Account data, logs, and secrets never belong in this repo.
+workspace/
+omni-sns-workspace/
+**/omni-sns-workspace/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+**/*.token
+**/*.pem
+**/secrets/
+**/*credentials.yaml
+!**/*credentials.example.yaml
+**/*credentials.json
+!**/*credentials.example.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

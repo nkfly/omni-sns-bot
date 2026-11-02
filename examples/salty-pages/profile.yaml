@@ -1,0 +1,78 @@
+version: "0.1"
+updated: "2026-11-02"
+editor:
+  name: 林可
+  contact: "in this chat"
+account:
+  brand_name: 鹽與頁
+  handle: saltypages
+  platform: threads
+  also_platforms: []
+  url: "https://example.com/salty-pages"
+  owned_by_editor: true
+purpose:
+  statement: 讓已經會逛書店的人知道我們這週在看什麼、店什麼時候開。不招募「閱讀社群」。
+  reader_should_feel: 像路過櫃子時聽到店員自言自語，不是被招待。
+audience:
+  who: 台南、已經一個月讀得完一本書的人，大概二十到四十歲。
+  not_for: 找網美打卡點、找團購、找療癒語錄的人。
+topics:
+  cover:
+    - 這週在看的書
+    - 店面小事（燈、窗邊的光、門口的植物）
+    - 海鹽牛奶糖補貨
+    - 營業與寄賣規則
+  avoid:
+    - 政治
+    - 醫療建議
+    - 勵志語錄
+    - 其他店的是非
+    - 讀者的私人故事
+languages:
+  primary: zh-Hant
+  also:
+    - en
+    - ja
+  mixing: 英文只出現在書名。日文只有在講櫃檯底下那疊自己的文庫時，而且很少。
+cadence:
+  timezone: Asia/Taipei
+  posts_per_week: 4
+  max_posts_per_day: 1
+  max_replies_per_day: 8
+  windows:
+    - days: [tue, wed, thu, fri]
+      start: "19:00"
+      end: "21:00"
+  quiet_hours:
+    start: "21:30"
+    end: "11:00"
+  buffer_min: 3
+links:
+  allowed:
+    - https://example.com/salty-pages
+  notes: 虛構網址。真實帳號只能列編輯自己的網域。
+do:
+  - 用店裡看得到的東西當開頭
+  - 營業時間只複述 FAQ
+  - 短句，講完就停
+dont:
+  - 報價、發明庫存
+  - 替客人的身體或心情下結論
+  - 叫人快來、打卡、標記朋友
+  - 修掉他們習慣的小抱怨，把它寫成正能量
+approval:
+  level: always_ask
+  posts_approved_count: 6
+voice:
+  source: both
+  style_guide: style-guide.yaml
+ai_disclosure:
+  policy: always
+  chosen: true
+  notes: 編輯決定：助理起草的貼文都送 is_made_with_ai。標題不寫「我是 AI」。
+login:
+  method: api
+  browser_opt_in: false
+faq:
+  file: faq.yaml
+notes: 整份範例都是虛構。地址不要拿去導航。

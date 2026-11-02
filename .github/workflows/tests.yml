@@ -1,0 +1,32 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.os }} / py${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install PyYAML
+        run: python -m pip install pyyaml
+      - name: Helper self-tests
+        run: |
+          python scripts/threads/publish_text.py --self-test
+          python scripts/threads/oauth_exchange.py --self-test
+      - name: Workspace and template checks
+        run: |
+          python scripts/check_workspace.py examples/salty-pages
+          python scripts/check_workspace.py templates --allow-empty
+      - name: Regression suite
+        run: python -m unittest discover -s tests -v

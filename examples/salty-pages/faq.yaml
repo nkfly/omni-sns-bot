@@ -1,0 +1,113 @@
+version: "0.1"
+updated: "2026-11-02"
+entries:
+  - id: hours
+    questions:
+      - 今天有開嗎
+      - 幾點關
+      - 營業時間
+      - opening hours
+    answer: 週二到週日 12:00–21:00，週一公休。
+    language: zh-Hant
+    sensitivity: low
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+  - id: seating
+    questions:
+      - 可以坐多久
+      - 要不要點餐
+      - 有位子嗎
+    answer: 可以坐很久。歡迎點一杯。沒點也可以，冰箱不是開放的。
+    language: zh-Hant
+    sensitivity: low
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+  - id: consignment
+    questions:
+      - 可以寄賣嗎
+      - 寄賣要多久
+    answer: 可以寄賣。店裡看完才上架，有時要兩週。不要寄來一箱然後每天問。
+    language: zh-Hant
+    sensitivity: low
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+  - id: candy
+    questions:
+      - 還有海鹽牛奶糖嗎
+      - 糖果保存期限
+    answer: 海鹽牛奶糖用牛皮紙盒。成分與保存期限印在盒子上。貼文只說有沒有補貨，不報價。
+    language: zh-Hant
+    sensitivity: medium
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+  - id: wifi
+    questions:
+      - 有 Wi-Fi 嗎
+      - wifi
+    answer: 有。密碼貼在櫃檯側面，不寫進貼文或留言。
+    language: zh-Hant
+    sensitivity: medium
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+  - id: address
+    questions:
+      - 地址在哪
+      - 怎麼去
+    answer: 範例地址是虛構的台南市中西區書巷 12 號，不要導航。真實帳號請換成編輯確認過的地址。
+    language: zh-Hant
+    sensitivity: low
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+  - id: pricing_policy
+    questions:
+      - 多少錢
+      - 有折扣嗎
+    answer: 不在貼文或留言報價、不說折扣。請對方到店裡看標價，或等編輯自己回。
+    language: zh-Hant
+    sensitivity: medium
+    source: editor
+    updated: "2026-11-02"
+    expires: ""
+inbox:
+  - id: q-20261102-001
+    received: "2026-11-02T18:02:00+08:00"
+    platform: threads
+    on_post_id: fictional-post-lamp
+    comment_id: fictional-comment-hours
+    from_username: neighbor_lin
+    text: 請問今天有開嗎？幾點關？
+    triage: answer_from_faq
+    faq_id: hours
+    draft: 今天公休。週二中午開，晚上九點關。
+    action_taken: pending
+    new_faq: false
+  - id: q-20261102-002
+    received: "2026-11-02T18:11:00+08:00"
+    platform: threads
+    on_post_id: fictional-post-candy
+    comment_id: fictional-comment-medical
+    from_username: asker
+    text: 海鹽牛奶糖糖尿病可以吃嗎？
+    triage: sensitive_hold
+    faq_id: candy
+    draft: ""
+    action_taken: escalated
+    new_faq: false
+  - id: q-20261102-003
+    received: "2026-11-02T18:20:00+08:00"
+    platform: threads
+    on_post_id: fictional-post-lamp
+    comment_id: fictional-comment-spam
+    from_username: promo99
+    text: 看我主頁連結賺錢
+    triage: ignore
+    faq_id: ""
+    draft: ""
+    action_taken: skipped
+    new_faq: false

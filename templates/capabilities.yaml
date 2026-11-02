@@ -1,0 +1,12 @@
+# Bot fills this in Phase 0. true or false, not maybe.
+persistent_files: false
+persistent_memory: false
+http: false
+browser: false
+schedule: false
+secret_store: false
+human_channel: true
+# local_files | memory_card | external
+# external means a future connector presents the same files. The loop does not call it.
+storage: local_files
+notes: ""
