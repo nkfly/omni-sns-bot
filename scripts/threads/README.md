@@ -88,6 +88,45 @@ Recovery is read-only. Never delete the journal or choose another path just to r
 
 `--check-limit --reply-to MEDIA_ID` checks both post and reply quotas. Plain `--check-limit` checks the post quota. Missing, malformed or exhausted required quotas block publishing.
 
+## Read an existing Chrome session
+
+Before asking the editor to paste a large corpus, discover whether their already
+logged-in browser can be read with permission. Prefer a native browser tool when
+available. The optional stdlib `browser_read.py` is a fallback for **macOS Chrome**;
+it is not a publisher and other operating systems use their verified browser tool
+or the documented API/pasted-text fallback. It never reads cookies, browser
+profiles, hidden API responses or arbitrary JavaScript supplied by the caller.
+
+```bash
+python3 scripts/threads/browser_read.py probe
+python3 scripts/threads/browser_read.py open --url https://www.threads.com/@fictional_editor --consent-read
+python3 scripts/threads/browser_read.py read --url https://www.threads.com/@fictional_editor --tab-id 123 --consent-read
+python3 scripts/threads/browser_read.py scroll --url https://www.threads.com/@fictional_editor --tab-id 123 --consent-read
+```
+
+Replace the fictional URL with the exact profile/post the editor authorized and
+use the tab id returned by `open`. The flag records a consent already given; it
+is not permission to assume one. `probe` only checks the platform and standard
+Chrome installation path: no launch, tab inspection or proof of access. The
+other actions may require macOS automation permission and Chrome's **Allow
+JavaScript from Apple Events** setting. If refused, explain the limitation and
+let the editor choose whether to enable it or use another route. Never work
+around a denied permission or login/checkpoint.
+
+`read` returns a bounded snapshot of the visible page, with target-author post
+blocks, source links and Profile navigation. `scroll` returns the snapshot
+**before** moving down one viewport; read again after loading. Only explicit
+profile/post URLs are accepted. If the tab navigates away, the operation stops.
+There is no automatic account switch, infinite scroll, composer action, like,
+reply or send. The text can contain UI or quoted material, so verify authorship,
+strip UI, track continuations and report partial coverage before analyzing voice.
+Save real snapshots only in the editor's private workspace, never in the repo or
+a PR. A reference-reading consent remains separate from management opt-in.
+
+See the [setup conversation contract](../../docs/setup-flow.md) for answer
+tracking, cadence semantics and the distinction between style, template and
+actual-send approval.
+
 ## Tests
 
 ```bash

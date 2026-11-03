@@ -4,6 +4,10 @@ Use this only when `api` is not available and the editor has set `login.browser_
 
 The official API is the supported publisher. This fallback exists so an assistant that can use a browser can still help an editor who will not create a Meta app. It is slower, easier to get wrong, and capped harder.
 
+## Read a reference profile before selecting management mode
+
+The editor can authorize read-only access to a specific reference profile for voice extraction without choosing browser management. Prefer an available native browser tool; macOS Chrome can use the optional [read-only helper](../../scripts/threads/README.md#read-an-existing-chrome-session). Record read consent and evidence separately from `login.browser_opt_in`. Do not switch accounts, export cookies or infer permission to post. A visible target profile alone does not prove it is the logged-in account; Profile navigation must match the managed handle before public actions.
+
 ## Say this before they opt in
 
 - You will never ask for the password, a backup code, or a 2FA secret. They log in on Threads themselves. If a checkpoint, captcha, or "was this you" prompt appears, you stop and they finish it.

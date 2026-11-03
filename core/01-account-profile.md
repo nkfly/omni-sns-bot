@@ -4,7 +4,7 @@ Goal: fill `profile.yaml` from the template until you could explain the account 
 
 Save after every group. If the chat dies, the workspace should still hold the answers you have.
 
-Do not ask the whole list in one message. One group, then wait.
+Use [the setup conversation contract](../docs/setup-flow.md): map answers by meaning even when numbered differently, retain partial answers, and ask only missing fields. Normally ask at most three short questions, then wait. Do not repeat a question answered in another group.
 
 ## Before the questions
 
@@ -35,6 +35,8 @@ Ask:
 4. Which topics do you want, and which topics should never appear?
 5. What language do you post in? When, if ever, do you mix in another?
 
+An explicit lack of exclusions is valid: use `topics.avoid: []` and `avoid_confirmed: true`, with an empty `audience.not_for` if appropriate. Leave extra `do`/`dont` rules empty when none were requested. Deferred links remain empty; do not ask again until a specific item needs a link.
+
 Push for specifics. "Young people who like life" is not an audience. "People in Tainan who already read a book a month" is.
 
 ## Group C — cadence and boundaries
@@ -52,7 +54,7 @@ Starters you may offer:
 - Do: specific details, facts that are in the FAQ, the cadence we just set.
 - Don't: invent prices or hours, argue with strangers, topics on the avoid list, more than one hashtag unless the style guide says so, posting during quiet hours, mentioning a real person's private business.
 
-Write `cadence.buffer_min` as `3` unless they want a deeper queue.
+Write `cadence.buffer_min` as `3` unless they want a deeper queue. Keep weekly minimums in optional `min_posts_per_week`; legacy `posts_per_week` is the weekly maximum. Store no editor reply cap as `max_replies_per_day: null`; compute adapter limits separately. Normalize an end at 24:00 to `00:00` with `end_next_day: true`. See the setup contract for day boundaries.
 
 ## Group D — approval and disclosure
 
@@ -82,13 +84,13 @@ Ask which they want:
 - `preset` — they describe the voice, useful for a new account
 - `both` — extract, then they correct it
 
-Write `voice.source`. The next module does the actual work. If they choose `extract` and you do not have posts yet, ask them to paste a batch before you invent a voice.
+Write `voice.source`. The next module does the actual work. For `extract`, try the editor-authorized existing browser or API path before asking for pasted posts; connection may precede extraction. If no path works, accept a small initial batch and mark the guide provisional. Never invent a voice.
 
 ## Group F — login mode
 
 Do this only after [`docs/capabilities.md`](../docs/capabilities.md) scored you.
 
-Recommend a mode. Record their choice in `login.method`: `api`, `browser`, or `draft_only`. `login.browser_opt_in` stays false until they accept the browser path after reading its limits. Details of login are Phase 4, not this interview. Do not open OAuth in the middle of the purpose questions.
+Recommend a mode. Record their choice in `login.method`: `api`, `browser`, or `draft_only`. `login.browser_opt_in` stays false until they accept the browser path after reading its limits. Connection normally happens in Phase 4, but may precede extraction when a corpus cannot otherwise be read. Do not open OAuth in the middle of the purpose questions.
 
 ## Required fields
 
@@ -97,7 +99,7 @@ A profile is usable when these are non-empty and `owned_by_editor` is true:
 - `editor.name`
 - `account.brand_name`, `account.handle`, `account.platform`
 - `purpose.statement`, `audience.who`
-- `topics.cover`, `topics.avoid` (lists, may contain one honest item)
+- `topics.cover` (non-empty list); `topics.avoid` (list, may be empty when `avoid_confirmed: true`)
 - `languages.primary`
 - `cadence.timezone`, `cadence.posts_per_week`, `cadence.max_posts_per_day`
 - `approval.level`

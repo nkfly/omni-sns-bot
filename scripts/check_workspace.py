@@ -9,6 +9,7 @@ blank and login may still be undecided.
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -125,6 +126,69 @@ def _env_pointer(value: str) -> bool:
     return text.startswith("THREADS_") or text.isupper() and "_" in text and text.replace("_", "").isalnum()
 
 
+def clock_minutes(value) -> int | None:
+    """Strict HH:MM; normalize a user's 24:00 to next-day 00:00 before saving."""
+    if not isinstance(value, str) or not re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]", value):
+        return None
+    hour, minute = map(int, value.split(":"))
+    return 60 * hour + minute
+
+
+def check_cadence(profile, report: Report, allow_empty: bool) -> None:
+    cadence, exists = dig(profile, "cadence")
+    if not exists or not isinstance(cadence, dict):
+        report.add("cadence must be a mapping")
+        return
+    for key in ("posts_per_week", "min_posts_per_week", "max_posts_per_day", "max_replies_per_day", "buffer_min"):
+        if key not in cadence:
+            continue  # Optional additions remain compatible with older workspaces.
+        value = cadence[key]
+        if key == "max_replies_per_day" and value is None:
+            continue  # No editor-defined cap; adapter/platform ceilings still apply.
+        if type(value) is not int or value < 0:
+            report.add(f"cadence.{key} must be a non-negative integer" + (" or null" if key == "max_replies_per_day" else ""))
+    minimum = cadence.get("min_posts_per_week", 0)
+    weekly = cadence.get("posts_per_week")
+    daily = cadence.get("max_posts_per_day")
+    if type(minimum) is int and minimum >= 0:
+        ceilings = [x for x in (weekly, daily * 7 if type(daily) is int else None) if type(x) is int and x >= 0]
+        if ceilings and minimum > min(ceilings):
+            report.add("cadence.min_posts_per_week exceeds the weekly or daily ceiling")
+    windows = cadence.get("windows", [])
+    if not isinstance(windows, list):
+        report.add("cadence.windows must be a list")
+        return
+    method, _ = dig(profile, "login.method")
+    if not allow_empty and not windows and method in {"api", "browser"} and daily != 0:
+        report.add("cadence.windows must define posting hours before live publishing")
+    days = {"mon", "tue", "wed", "thu", "fri", "sat", "sun"}
+    for index, window in enumerate(windows):
+        trail = f"cadence.windows[{index}]"
+        if not isinstance(window, dict):
+            report.add(f"{trail} must be a mapping")
+            continue
+        selected_days = window.get("days")
+        if (not isinstance(selected_days, list) or not selected_days
+                or any(not isinstance(day, str) or day not in days for day in selected_days)):
+            report.add(f"{trail}.days must list weekdays mon through sun")
+        start, end = clock_minutes(window.get("start")), clock_minutes(window.get("end"))
+        if start is None or end is None:
+            report.add(f"{trail} needs HH:MM times; save 24:00 as 00:00 with end_next_day: true")
+            continue
+        next_day = window.get("end_next_day", False)
+        if type(next_day) is not bool:
+            report.add(f"{trail}.end_next_day must be boolean")
+        elif start == end or (end < start) != next_day:
+            report.add(f"{trail} must be non-empty and cross midnight only with end_next_day: true")
+    quiet = cadence.get("quiet_hours")
+    if quiet is not None:
+        if not isinstance(quiet, dict):
+            report.add("cadence.quiet_hours must be a mapping")
+        elif not (allow_empty and not quiet.get("start") and not quiet.get("end")):
+            if clock_minutes(quiet.get("start")) is None or clock_minutes(quiet.get("end")) is None:
+                report.add("cadence.quiet_hours needs HH:MM start and end")
+
+
 def check_profile(profile, report: Report, allow_empty: bool) -> None:
     for key in (
         "version",
@@ -149,9 +213,15 @@ def check_profile(profile, report: Report, allow_empty: bool) -> None:
         "login.browser_opt_in",
     ):
         report.need(profile, key, non_empty=not allow_empty and key != "topics.avoid")
-    # topics.avoid may be a non-empty list in strict mode; the key must exist.
-    if not allow_empty:
-        report.need(profile, "topics.avoid", non_empty=True)
+    avoid, exists = dig(profile, "topics.avoid")
+    confirmed, _ = dig(profile, "topics.avoid_confirmed")
+    if exists and (not isinstance(avoid, list) or any(not isinstance(topic, str) or not topic.strip() for topic in avoid)):
+        report.add("topics.avoid must be a list of non-empty topic names; [] means none")
+    elif exists and not avoid and not allow_empty and confirmed is not True:
+        report.add("confirm topics.avoid_confirmed: true when the editor explicitly has no excluded topics")
+    if confirmed is not None and type(confirmed) is not bool:
+        report.add("topics.avoid_confirmed must be boolean")
+    check_cadence(profile, report, allow_empty)
     level, ok = dig(profile, "approval.level")
     if ok and level not in APPROVAL_LEVELS and not (allow_empty and level in APPROVAL_LEVELS | {None, ""}):
         if level not in APPROVAL_LEVELS:
@@ -162,6 +232,9 @@ def check_profile(profile, report: Report, allow_empty: bool) -> None:
     method, ok = dig(profile, "login.method")
     if ok and not allow_empty and method not in LOGIN_METHODS:
         report.add(f"login.method {method!r} must be api, browser, or draft_only")
+    opted_in, _ = dig(profile, "login.browser_opt_in")
+    if not allow_empty and method == "browser" and opted_in is not True:
+        report.add("login.browser_opt_in must be true for browser mode")
     owned, ok = dig(profile, "account.owned_by_editor")
     if ok and not allow_empty and owned is not True:
         report.add("account.owned_by_editor must be true before the account is usable")
@@ -233,6 +306,30 @@ def check_capabilities(data, report: Report) -> None:
     storage = data.get("storage")
     if storage not in STORAGE_VALUES:
         report.add("capabilities.storage must be local_files, memory_card, or external")
+
+
+def check_setup_state(data, report: Report) -> None:
+    if not isinstance(data, dict):
+        report.add("setup-state.yaml must be a mapping")
+        return
+    for field, choices in (
+        ("phase", {"capabilities", "profile", "voice", "connection", "faq", "handoff"}),
+        ("status", {"in_progress", "ready", "paused"}),
+        ("session_intent", {"setup_only", "drafting", "publishing_review"}),
+    ):
+        value = data.get(field)
+        if not isinstance(value, str) or value not in choices:
+            report.add(f"setup-state.{field} must be one of {', '.join(sorted(choices))}")
+    for field in ("confirmed_fields", "pending_questions", "deferred_fields", "decisions"):
+        if not isinstance(data.get(field), list):
+            report.add(f"setup-state.{field} must be a list")
+    decisions = data.get("decisions")
+    if isinstance(decisions, list):
+        for index, decision in enumerate(decisions):
+            if (not isinstance(decision, dict) or not isinstance(decision.get("scope"), str)
+                    or decision["scope"] not in {"style", "reply_template", "public_action"}
+                    or not isinstance(decision.get("item_id"), str) or not decision["item_id"].strip()):
+                report.add(f"setup-state.decisions[{index}] needs an item_id and style|reply_template|public_action scope")
 
 
 def check_policy(policy, profile, report: Report, allow_empty: bool) -> None:
@@ -390,7 +487,10 @@ def check_tree(root: Path, allow_empty: bool) -> list[str]:
         if extra.name in required or extra.name == "credentials.example.yaml":
             continue
         try:
-            report.walk_secrets(load(extra), extra.name)
+            data = load(extra)
+            if extra.name == "setup-state.yaml":
+                check_setup_state(data, report)
+            report.walk_secrets(data, extra.name)
         except yaml.YAMLError as exc:
             report.add(f"{extra.name} is not valid YAML: {exc}")
     return report.problems

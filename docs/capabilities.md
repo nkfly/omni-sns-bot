@@ -1,6 +1,6 @@
 # Capabilities and fallbacks
 
-Do this before the interview. Score yourself honestly. "Unknown" means you try once, and if it fails you mark it false.
+Do this before the interview. Follow the [setup conversation contract](setup-flow.md). Score yourself honestly. "Unknown" means you try once, and if it fails you mark it false.
 
 Write the result to `capabilities.yaml` in the workspace (or into the memory card):
 
@@ -52,8 +52,9 @@ You can send HTTPS requests to `graph.threads.com` (or `graph.threads.net`).
 
 You can open a site, see the page, click, and type.
 
-- **If yes:** you may offer the browser path later. You do not use it until the editor opts in.
-- **If no:** skip every browser step. Do not give click-by-click instructions that you cannot see fail.
+- **If yes:** record the verified operation (open/read/scroll, not an untested publish). Use a specific reference-reading consent for style extraction. Browser management uses the separate opt-in and limits in `platforms/threads/browser.md`.
+- **If untested:** discover native tools and approved OS automation routes, including the optional macOS [Chrome reader](../scripts/threads/README.md#read-an-existing-chrome-session). Installation alone is not proof of access. Record the probe and read evidence in `setup-state.yaml`. A search/page-fetch failure is not a failed logged-in browser read.
+- **If no after a permitted test:** skip browser steps and explain the actual limitation. Do not give click-by-click instructions that you cannot see fail.
 
 ### `schedule`
 
