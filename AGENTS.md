@@ -22,6 +22,7 @@ Use this order. Read a file when you reach that phase, not all of them before sa
 | When | File |
 | --- | --- |
 | Before you do anything else | [`BOT_START_HERE.md`](BOT_START_HERE.md) |
+| Setup conversation and progress | [`docs/setup-flow.md`](docs/setup-flow.md), [`templates/setup-state.yaml`](templates/setup-state.yaml) |
 | Before setup | [`docs/safety.md`](docs/safety.md), [`docs/capabilities.md`](docs/capabilities.md), [`docs/workspace-layout.md`](docs/workspace-layout.md) |
 | Profile interview | [`core/01-account-profile.md`](core/01-account-profile.md), [`templates/profile.yaml`](templates/profile.yaml) |
 | Voice | [`core/02-voice-and-style.md`](core/02-voice-and-style.md), [`core/avoid-ai-voice.md`](core/avoid-ai-voice.md), [`core/self-check.md`](core/self-check.md) |

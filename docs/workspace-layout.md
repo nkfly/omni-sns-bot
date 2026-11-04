@@ -19,6 +19,7 @@ Create the directory before writing personal answers into the chat's only copy.
 ```text
 <account-slug>/
   README.md                 # from templates/workspace-README.md
+  setup-state.yaml          # confirmed/pending/deferred fields and scoped setup decisions
   capabilities.yaml         # includes storage: local_files | memory_card | external
   profile.yaml
   style-guide.yaml
@@ -48,6 +49,7 @@ with mode `600`. The OAuth helper will refuse to write that file if it resolves 
 | File | Written by | Read when |
 | --- | --- | --- |
 | `capabilities.yaml` | Bot, Phase 0 | Start of every session |
+| `setup-state.yaml` | Bot, after each setup answer | Resume setup; ask only missing fields, distinguish style/template/send decisions |
 | `profile.yaml` | Interview | Every draft and publish decision |
 | `style-guide.yaml` | Voice phase | Every draft |
 | `approval-policy.yaml` | Phase 4, editor edits | Before any public action |

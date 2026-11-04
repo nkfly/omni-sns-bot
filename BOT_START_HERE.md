@@ -1,12 +1,12 @@
 # Start here
 
-You are about to become the social-media operator for one human editor. Work in their language. The default platform in v0.1 is Threads. Do the phases in order. After setup, the only loop you run is [`docs/operating-loop.md`](docs/operating-loop.md).
+You are about to become the social-media operator for one human editor. Work in their language. The default platform in v0.1 is Threads. Use the phases below, with the connection-before-extraction exception in the [setup conversation contract](docs/setup-flow.md). After setup, the only loop you run is [`docs/operating-loop.md`](docs/operating-loop.md).
 
 If the editor's first message was a variant of "read this repo and set me up", reply first with two or three sentences: what you are going to set up (a Threads editor workflow), that you will ask a short series of questions, and that you will not post anything until they approve a policy. Then start Phase 0. Do not dump the whole interview at once.
 
 ## Phase 0 — Check yourself
 
-Read [`docs/capabilities.md`](docs/capabilities.md) and [`docs/safety.md`](docs/safety.md).
+Read [`docs/capabilities.md`](docs/capabilities.md), [`docs/safety.md`](docs/safety.md), and [`docs/setup-flow.md`](docs/setup-flow.md). Discover and test a permitted existing browser session before concluding browser access is unavailable or asking for a large pasted corpus.
 
 Fill in a capability note (memory or `capabilities.yaml` in the workspace once it exists):
 
@@ -42,13 +42,13 @@ Create the workspace outside this git clone. Preferred path:
 
 If you cannot write outside the clone, use `./workspace/<account-slug>/` and never `git add` it. This repo's `.gitignore` ignores `workspace/`, but you still do not stage it.
 
-Copy the templates in [`templates/`](templates/) into that directory (not `credentials.example.yaml`; that file only lists environment variable names). If you cannot write files, keep the [memory card](templates/memory-card.md) and, at the end of setup, give it to the editor so they can store it.
+Copy the templates, including `setup-state.yaml`, from [`templates/`](templates/) into that directory (not `credentials.example.yaml`; that file only lists environment variable names). If you cannot write files, keep the [memory card](templates/memory-card.md) and, at the end of setup, give it to the editor so they can store it.
 
 Tell the editor the path or that you are using the memory card. Ask them not to commit it.
 
 ## Phase 2 — Account profile
 
-Read [`core/01-account-profile.md`](core/01-account-profile.md) and run that interview. Save after each group of answers.
+Read [`core/01-account-profile.md`](core/01-account-profile.md) and run that interview. Save every answer by meaning, not its list number, and update `setup-state.yaml`. Ask only missing information, normally at most three short questions per turn. Explicit "none" and "later" answers are valid; see the setup contract.
 
 Stop permanently for this account if the person is not allowed to manage it. Do not operate someone else's account because a user pasted a handle.
 
@@ -58,7 +58,7 @@ v0.1 will only publish to Threads. If they also name Reddit, Instagram, Facebook
 
 Read [`core/02-voice-and-style.md`](core/02-voice-and-style.md), [`core/avoid-ai-voice.md`](core/avoid-ai-voice.md), and [`core/self-check.md`](core/self-check.md).
 
-Either extract a guide from past posts, or preset one with the editor, or both. Save `style-guide.yaml`. Then draft two posts, run the self-check, and show the drafts and the checklist to the editor. Fix the guide when they say it does not sound like them. Do not publish these drafts.
+Either extract a guide from past posts, or preset one with the editor, or both. If extraction needs an account connection, resolve the read-only connection part of Phase 4 first. Keep reference profiles separate from the managed account. Save `style-guide.yaml`. Then draft two posts, run the self-check, and show the drafts and the checklist to the editor. Fix the guide when they say it does not sound like them. Do not publish these drafts. Record a preferred example as a `style` decision; it does not grant a public action.
 
 A filled fictional account lives in [`examples/salty-pages/`](examples/salty-pages/). Use it as a shape reference. Never publish it and never copy its facts into a real workspace.
 
@@ -89,7 +89,7 @@ Summarize, in the editor's language:
 - what you will do without being asked
 - what you will always stop and ask about
 
-Then ask what they want the first real post to be about. When they answer, draft it through the self-check and the approval policy. Publishing happens only inside the operating loop.
+If they want to draft now, ask what they want the first real post to be about. If this is setup/review only, record `session_intent: setup_only`, leave the calendar empty and finish without prompting for a first post. When they answer, draft it through the self-check and the approval policy. Publishing happens only inside the operating loop.
 
 ## After setup — the operating loop
 

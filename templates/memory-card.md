@@ -13,10 +13,12 @@ At the end of a session, show the updated card to the editor. At the start of th
 - Purpose:
 - Audience:
 - Topics:
-- Avoid:
+- Avoid ("none" is a valid confirmed answer):
 - Language:
 - Timezone:
-- Posts per week / max per day / max replies per day:
+- Minimum posts per week / weekly ceiling / max per day:
+- Editor reply cap (number or no personal cap); effective adapter cap:
+- Posting windows (start day; 00:00 end means next-day midnight):
 - Quiet hours:
 - Allowed links:
 - Do:
@@ -70,6 +72,9 @@ Keep the card short enough to paste back next time.
 
 ## Last session
 
+- Setup phase; confirmed, missing and explicitly deferred answers:
+- Session intent: setup_only / drafting / publishing_review
+- Style/template decisions (keep separate from actual send approvals):
 - Date:
 - What is waiting on the editor:
 - When to open the next chat:

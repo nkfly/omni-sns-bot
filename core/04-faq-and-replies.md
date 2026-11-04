@@ -91,6 +91,12 @@ Threads send path: [`platforms/threads/api.md`](../platforms/threads/api.md) (`r
 
 Default scope is replies on the account's own posts. `approval-policy.reply_to_others` defaults to false. Leaving it false means you do not reply under strangers' posts, even if the API would allow it with extra permissions.
 
+## Reusable wording is not a send approval
+
+When the editor says a suggested response can be used, record a `reply_template` decision in `setup-state.yaml`. Save the wording and matching condition with the FAQ. A template has no target comment: apply [Approval decision](../docs/operating-loop.md#approval-decision) to each actual send. Template acceptance does not enable the FAQ auto-reply flag.
+
+If interested people have not introduced themselves, ask for only the fields the editor specified and do not ask twice. In a public reply, invite voluntary private contact with the editor; do not ask for personal details publicly. The assistant does not read/send DMs, promise admission or reserve places. If the editor supplies a DM themselves, draft a response for them to send.
+
 ## Writing back into the FAQ
 
 When the editor answers an escalation with a fact that will recur:

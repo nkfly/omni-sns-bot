@@ -1,0 +1,15 @@
+# Private setup progress, not a second profile or a grant of permission.
+version: "0.1"
+phase: capabilities  # capabilities | profile | voice | connection | faq | handoff
+status: in_progress  # in_progress | ready | paused
+session_intent: setup_only  # setup_only | drafting | publishing_review
+confirmed_fields: []  # Profile paths already answered; map by meaning, not answer numbers.
+pending_questions: []  # Ask only missing fields; normally at most three short questions.
+deferred_fields: []  # Links or optional details explicitly deferred; do not keep asking.
+capability_evidence: {}  # Tool/operation, observed outcome, time; no credentials.
+decisions: []
+# - item_id: practice-2
+#   scope: style  # style | reply_template | public_action
+#   result: preferred
+#   at: ""
+# A style/template preference never grants a public send or flips auto-reply policy.

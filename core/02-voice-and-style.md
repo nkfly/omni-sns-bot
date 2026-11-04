@@ -22,9 +22,11 @@ Prefer the account's own top-level posts, not replies. Replies go in a separate 
 
 **API, once `login.method` is `api` and a token works.** `GET /{threads-user-id}/threads` with `fields=id,text,timestamp,permalink,media_type` and `limit=50`. Page with `after` until you have about 30 text posts or the posts run out. See [`platforms/threads/api.md`](../platforms/threads/api.md). Store the export in `sources/past-posts.md` or `.json` in the workspace, not in this repo.
 
-**No API yet.** Ask the editor to paste 15–30 posts. Tell them replies are optional and to skip posts they do not want the voice to imitate (ads they regret, arguments).
+**No API yet.** First check for a permitted existing browser session; the read-only [Chrome helper](../scripts/threads/README.md#read-an-existing-chrome-session) is one optional route. A biography-only web result is not a writing corpus or proof that the browser cannot work. If no permitted read path works, ask the editor to paste a small initial batch, growing toward 15–30 posts. Tell them replies are optional and to skip posts they do not want the voice to imitate (ads they regret, arguments).
 
-**Browser.** Only if they already opted in. Scroll their profile and copy text they confirm is theirs. Do not scrape other people.
+**Browser.** Only with explicit consent to read that reference profile; this does not grant browser publishing. Store the reference under `profile.voice.reference_accounts`, not as the managed handle. Scroll their profile and copy text they confirm is theirs. Do not scrape other people.
+
+Record actual coverage and separate top-level posts from continuations/replies, UI text and quotations by other authors. Historical facts in a style corpus are not automatically approved current facts for new posts.
 
 Stop at 50 posts. More than that rarely changes the guide and invites you to overfit one weird week.
 
@@ -77,7 +79,7 @@ Write their paragraph into `gold_posts` with `source: editor_sample`. Invent not
 1. Show a short summary in their language (half a screen, not the raw YAML, unless they ask).
 2. Draft two posts on topics they approved. Mark them as practice in the calendar with `status: pending_approval` and a note `practice: true`, or keep them out of the calendar and in `drafts/practice-1.md`. A practice item is never publishable, even if its wording is approved; create a new real item if the editor later wants to use it.
 3. Run [`self-check.md`](self-check.md) on each. Show the draft and the failed lines. Do not show a draft that still has a hard fail; rewrite once first.
-4. Ask "where does this not sound like you?" Apply their answer to the guide, then rewrite. Two rounds is enough. If it is still wrong, the guide is wrong; do not keep generating until something slips through.
+4. Ask "where does this not sound like you?" Apply their answer to the guide, then rewrite. Save a numbered sample selection as a `style` decision in `setup-state.yaml`; it does not authorize publishing the practice draft. Two rounds is enough. If it is still wrong, the guide is wrong; do not keep generating until something slips through.
 
 ## Replies have a tighter voice
 

@@ -20,6 +20,8 @@ When `storage` is `memory_card`, or `persistent_files` is false, use the **Memor
 
 Read `profile.yaml`, `style-guide.yaml`, `approval-policy.yaml`, `faq.yaml`, `calendar.yaml`, and the last 30 lines of `logs/activity.jsonl`.
 
+Read `setup-state.yaml` when present and follow the current session intent in the [setup conversation contract](setup-flow.md#finish-setup-without-forcing-a-post). During `setup_only`, read/check work is allowed, but skip public sends in Inbox/Calendar and skip drafting/refill. On a later explicit drafting/send-review request, update the intent before continuing; a draft request never approves a send.
+
 If files are missing, stop and return to [`BOT_START_HERE.md`](../BOT_START_HERE.md). Do not rebuild them from imagination.
 
 ## 1. Token and quota (mode `api` only)
@@ -37,13 +39,15 @@ Fetch new replies on the account's own recent posts. For each new reply, follow 
 3. Send only if the approval policy allows this kind of reply. Otherwise show the editor the draft.
 4. If the editor supplies a new fact, write it into `faq.yaml` with `source: editor`.
 
-Cap sends at `profile.cadence.max_replies_per_day` and at the platform reply ceiling. Prefer fewer good replies over clearing the inbox.
+Cap sends at `profile.cadence.max_replies_per_day` when it is numeric, plus the adapter/platform reply ceiling. `null` means no editor-defined cap, not no platform limit. Browser mode always keeps its own cap from `platforms/threads/limits.md`; compute the lower applicable ceiling without overwriting the editor's preference. Prefer fewer good replies over clearing the inbox.
 
 `draft_only`: list the comments you were given, or ask the editor to paste new ones. Do not claim you checked Threads.
 
 ## 3. Calendar
 
 Timezone is `profile.cadence.timezone`. "Due" means `publish_at` is in the past or within the next 10 minutes, and the current local time is inside a posting window and outside quiet hours.
+
+Use the [cadence semantics](setup-flow.md#represent-cadence-without-changing-its-meaning): `posts_per_week` is a maximum, optional `min_posts_per_week` is a planning target, and overnight windows use `end_next_day: true`. Windows include their start and exclude their end; `days` refers to the start day. Never interpret 24:00 as the start of the same evening.
 
 For each item, in `publish_at` order:
 
@@ -75,6 +79,8 @@ If a gate fails, leave the item `approved` (it is still wanted) and log `blocked
 
 ## 4. Refill the queue
 
+If the current session is setup/review only (`setup-state.session_intent: setup_only`), skip drafting/refill and public sends. A selected practice or reply template is not an instruction to create or publish a post today.
+
 Count items in `idea`, `draft`, `pending_approval`, or `approved` whose `publish_at` is still in the future. If that count is below `profile.cadence.buffer_min` (default 3):
 
 - Propose ideas grounded in `topics.cover`, recent FAQ questions, and `sources/`.
@@ -89,6 +95,8 @@ Append log lines for what you did. If you have no scheduler, tell the editor whe
 ## Approval decision
 
 Read `approval-policy.yaml`.
+
+Use the [decision scopes](setup-flow.md#keep-feedback-scoped): a style preference and a reusable reply-template approval do not authorize a specific public send, change the approval level, or enable the existing FAQ-reply exception. Apply the current policy to each identified destination and exact text.
 
 This section is the canonical approval rule. Other files summarize it and must not weaken it. First apply these overrides, in order:
 

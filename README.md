@@ -10,6 +10,11 @@ The bot reads this repository, interviews the editor, and keeps the account's pr
 
 The bot should follow [`BOT_START_HERE.md`](BOT_START_HERE.md). Humans can read this README and then the same file.
 
+Setup follows the [conversation contract](docs/setup-flow.md): reuse answers,
+accept explicit "none"/"later", check authorized existing browser access before
+requesting a large paste, and keep style/template preferences separate from
+permission to send. You can finish setup without writing or publishing a post.
+
 ## What you get
 
 - **Account profile.** A guided interview: brand, handle, purpose, audience, topics, do/don't list, cadence, languages, links, and an approval policy.
@@ -24,6 +29,7 @@ The bot does not need a special plugin. Instructions are written against capabil
 | Path | What it is |
 | --- | --- |
 | [`BOT_START_HERE.md`](BOT_START_HERE.md) | The procedure the bot executes |
+| [`docs/setup-flow.md`](docs/setup-flow.md) | Setup progress, browser discovery, cadence and scoped decisions |
 | [`AGENTS.md`](AGENTS.md) | Short override list and read order |
 | [`core/`](core/) | Profile, voice, publishing, FAQ |
 | [`platforms/threads/`](platforms/threads/) | Threads API, browser path, quotas |
@@ -98,6 +104,8 @@ See [`CONTRIBUTING.md`](CONTRIBUTING.md). Bugs in the Threads instructions shoul
 > 下載 https://github.com/nkfly/omni-sns-bot，從 `BOT_START_HERE.md` 開始把整個 repo 讀完，然後幫我當 Threads 小編把帳號設定好。
 
 ### 你會得到什麼
+
+設定時會保留已回答的內容，「沒有」與「之後再說」也會記下；先確認能否使用你授權的已登入瀏覽器，再請你大量貼上舊文。「每週至少」與「最多」分開保存，風格範例或回覆範本的認可也不等於同意發送。你可以只完成設定，今天不寫、不發布貼文。
 
 - **帳號設定。** 品牌名稱、帳號、目的、受眾、主題、要做／不要做、發文節奏、語言、連結、審核政策。bot 會分批問，不會一次丟三頁問卷。
 - **聲線。** 從舊貼文學，或由你先描述風格。內建「不要寫得像 AI」的檢查，涵蓋英文、繁體中文、日文，每則草稿公開前都要過自檢。
